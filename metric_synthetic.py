@@ -1,0 +1,427 @@
+# Copyright (c) 2025 VortexBench Team
+# SPDX-License-Identifier: Apache-2.0
+
+import os
+import json
+import base64
+import time
+import re
+import logging
+import requests
+from PIL import Image
+from io import BytesIO
+from openai import AzureOpenAI
+from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from prompts import (
+    prompt_reasoning_process_synthetic,
+    prompt_reasoning_visual_synthetic,
+    prompt_reasoning_alignment,
+    prompt_visual_consistency,
+    prompt_image_quality,
+)
+import threading
+
+lock = threading.Lock()  # Thread-safe file writing lock
+
+# Import configuration
+from config import AZURE_API_KEY, AZURE_ENDPOINT, AZURE_DEPLOYMENT_NAME, AZURE_API_VERSION
+
+# Initialize Azure OpenAI client
+azure_client = AzureOpenAI(
+    azure_endpoint=AZURE_ENDPOINT,
+    api_key=AZURE_API_KEY,
+    api_version=AZURE_API_VERSION,
+)
+
+# Define metrics for all reasoning types
+METRICS = ["reasoning_process", "reasoning_visual", "reasoning_alignment", "visual_consistency", "image_quality"]
+
+VORTEX_GEN_DIR = "/code/VortexBench/gen_banana"
+
+def save_result_jsonl(result, key, output_jsonl_path):
+    """Save evaluation result to JSONL file with thread lock"""
+    with lock:
+        with open(output_jsonl_path, 'a', encoding='utf-8') as f:
+            data = {"key": key, "result": result}
+            f.write(json.dumps(data, ensure_ascii=False) + '\n')
+
+def load_processed_keys_with_missing_metrics(jsonl_path, metrics, expected_keys_map):
+    """Load processed image IDs and return missing metrics for each key"""
+    key_missing_metrics = {}  # key -> list of missing metrics
+    fully_completed_keys = set()  # keys that have all metrics completed
+    
+    if os.path.exists(jsonl_path):
+        # First, collect all results for each key
+        key_results = {}  # key -> merged result dict
+        
+        with open(jsonl_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                try:
+                    data = json.loads(line.strip())
+                    key = data["key"]
+                    result = data["result"]
+                    
+                    if key not in key_results:
+                        key_results[key] = {}
+                    key_results[key].update(result)
+                except (json.JSONDecodeError, KeyError):
+                    continue
+        
+        # Check which metrics are missing for each key
+        for key in expected_keys_map:
+            if key in key_results:
+                missing_metrics = []
+                for metric in metrics:
+                    # Check if this metric has valid scores
+                    if metric == "reasoning_process":
+                        if f"reasoning_process_score" not in key_results[key] or key_results[key][f"reasoning_process_score"] is None:
+                            missing_metrics.append(metric)
+                    elif metric == "reasoning_visual":
+                        if f"reasoning_visual_score" not in key_results[key] or key_results[key][f"reasoning_visual_score"] is None:
+                            missing_metrics.append(metric)
+                    elif metric == "reasoning_alignment":
+                        if f"reasoning_alignment_score" not in key_results[key] or key_results[key][f"reasoning_alignment_score"] is None:
+                            missing_metrics.append(metric)
+                    elif metric == "visual_consistency":
+                        if f"visual_consistency_score" not in key_results[key] or key_results[key][f"visual_consistency_score"] is None:
+                            missing_metrics.append(metric)
+                    elif metric == "image_quality":
+                        if f"image_quality_score" not in key_results[key] or key_results[key][f"image_quality_score"] is None:
+                            missing_metrics.append(metric)
+                
+                if missing_metrics:
+                    key_missing_metrics[key] = missing_metrics
+                else:
+                    fully_completed_keys.add(key)
+            else:
+                key_missing_metrics[key] = metrics[:]  # All metrics missing
+    else:
+        # File doesn't exist, all keys need all metrics
+        key_missing_metrics = {key: metrics[:] for key in expected_keys_map}
+    
+    return key_missing_metrics, fully_completed_keys
+
+def encode_image_to_base64(image_input):
+    """Encode image to base64 string
+    
+    Args:
+        image_input: Can be a file path (string) or PIL Image object
+    """
+    try:
+        if isinstance(image_input, str):
+            # It's a file path
+            with open(image_input, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
+        else:
+            # It's a PIL Image object
+            buffer = BytesIO()
+            image_input.save(buffer, format='JPEG')
+            return base64.b64encode(buffer.getvalue()).decode('utf-8')
+    except Exception as e:
+        logging.error(f"Error encoding image {image_input}: {e}")
+        return None
+
+def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None):
+    """Evaluate images using Azure GPT-4o with rate limiting and retries"""
+    messages = [{"role": "user", "content": [{"type": "text", "text": prompt}]}]
+    
+    if original_base64:
+        messages[0]["content"].append({
+            "type": "image_url",
+            "image_url": {"url": f"data:image/png;base64,{original_base64}"}
+        })
+    
+    if edited_base64:
+        messages[0]["content"].append({
+            "type": "image_url", 
+            "image_url": {"url": f"data:image/png;base64,{edited_base64}"}
+        })
+
+    for attempt in range(3):
+        try:
+            response = azure_client.chat.completions.create(
+                model=AZURE_DEPLOYMENT_NAME,
+                messages=messages,
+                max_tokens=1000,
+                temperature=0.0,
+            )
+            time.sleep(1)  # Rate limiting
+            return response.choices[0].message.content
+        except Exception as e:
+            logging.warning(f"Azure GPT evaluation attempt {attempt + 1} failed: {e}")
+            time.sleep(2 ** attempt)  # Exponential backoff
+
+    logging.error("Azure GPT evaluation failed after 3 attempts.")
+    return ""
+
+def extract_json_field(response, score_key, reason_key):
+    """Extract score and reasoning from JSON response"""
+    try:
+        # Handle double braces from prompt format
+        if response.startswith('{{') and response.endswith('}}'):
+            response = response[1:-1]  # Remove outer braces
+        
+        # Try parsing as JSON first
+        data = json.loads(response)
+        score = data.get(score_key)
+        reason = data.get(reason_key) or data.get("reasoning")
+        return int(score) if score is not None else None, reason
+    except:
+        return None, None
+
+def extract_score_and_reason(response, score_key, reason_fields, prefix_patterns=None):
+    """Extract score and reasoning from GPT response with fallback patterns"""
+    # Try JSON extraction first
+    for reason_field in reason_fields:
+        score, reason = extract_json_field(response, score_key, reason_field)
+        if score is not None:
+            return score, reason
+    
+    # Fallback to regex patterns
+    patterns = [
+        rf"{score_key}\s*[:：]?\s*([1-5])",
+        r"([1-5])\s*/\s*5",
+        r"([1-5])\s+out\s+of\s+5",
+    ]
+    if prefix_patterns:
+        patterns = prefix_patterns + patterns
+    
+    score = None
+    for pat in patterns:
+        m = re.search(pat, response, re.IGNORECASE)
+        if m:
+            score = int(m.group(1))
+            break
+    
+    # Extract reasoning
+    reason = None
+    reason_match = re.search(r"reasoning\s*[:：]\s*(.+)", response, re.IGNORECASE|re.DOTALL)
+    if reason_match:
+        reason = reason_match.group(1).strip()
+    
+    return score, reason
+
+def evaluate_images(image_id, metrics=None, vortex_data=None, api_key=None):
+    """
+    Evaluate synthetic reasoning images based on specified metrics
+    """
+    metrics = metrics or METRICS
+    results = {}
+    
+    # Note: Azure API key is configured globally, api_key parameter ignored
+    # Azure OpenAI client is already initialized with credentials
+    
+    # Find the specific task
+    task = None
+    for t in vortex_data["tasks"]:
+        if t["id"] == image_id:
+            task = t
+            break
+    
+    if not task:
+        logging.warning(f"Task ID {image_id} not found")
+        return results
+
+    # Get images from HF dataset (PIL Image objects) and file paths
+    original_image = task.get('image')  # PIL Image object from HF dataset
+    target_image = task.get('target_image')  # PIL Image object from HF dataset
+    
+    generated_path = os.path.join(VORTEX_GEN_DIR, f"gen_{image_id}.png")
+    think_path = os.path.join(VORTEX_GEN_DIR, f"gen_{image_id}.txt")
+
+    # Check if original image exists
+    if original_image is None:
+        logging.error(f"Original image not found for task {image_id}")
+        return results
+    if not os.path.isfile(generated_path):
+        logging.error(f"Generated image not found: {generated_path}")
+        return results
+    
+    # Load think output if exists
+    think_output = None
+    if os.path.isfile(think_path):
+        try:
+            with open(think_path, 'r', encoding='utf-8') as f:
+                think_output = f.read().strip()
+        except Exception as e:
+            logging.warning(f"Error loading think output {think_path}: {e}")
+
+    # Encode images
+    orig_b64 = encode_image_to_base64(original_image)  # PIL Image object
+    gen_b64 = encode_image_to_base64(generated_path)   # File path
+    if not orig_b64 or not gen_b64:
+        logging.error(f"Failed to encode images for {image_id}")
+        return results
+    
+    # Encode target image if available
+    target_b64 = None
+    if target_image is not None:
+        target_b64 = encode_image_to_base64(target_image)
+
+    # Extract task information
+    prompt = task.get("prompt", "")
+    dimension = task.get("dimension", "")
+    keywords = task.get("keywords", "")  # Already a string in HF dataset
+    target_description = task.get("target_description", "")
+    
+    # Keywords is already a string, use directly
+    keywords_str = keywords if keywords else ""
+
+    # Evaluate each metric
+    for metric in metrics:
+        if metric == "reasoning_process":
+            prompt_text = prompt_reasoning_process_synthetic.format(
+                prompt=prompt,
+                dimension=dimension,
+                keywords=keywords_str,
+                target_description=target_description,
+                think_output=think_output if think_output else "No think output available"
+            )
+            resp = evaluate_with_gpt(prompt_text, orig_b64, None)
+            score, reason = extract_score_and_reason(resp, "reasoning_process_score", ["reasoning"])
+            results["reasoning_process_score"] = score
+            results["reasoning_process_reasoning"] = reason
+            
+        elif metric == "reasoning_visual":
+            prompt_text = prompt_reasoning_visual_synthetic.format(
+                prompt=prompt,
+                dimension=dimension,
+                keywords=keywords_str,
+                target_description=target_description
+            )
+            resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64)
+            score, reason = extract_score_and_reason(resp, "reasoning_visual_score", ["reasoning"])
+            results["reasoning_visual_score"] = score
+            results["reasoning_visual_reasoning"] = reason
+
+        elif metric == "reasoning_alignment":
+            prompt_text = prompt_reasoning_alignment.format(
+                prompt=prompt,
+                think_output=think_output if think_output else "No think output available"
+            )
+            resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64)
+            score, reason = extract_score_and_reason(resp, "reasoning_alignment_score", ["reasoning"])
+            results["reasoning_alignment_score"] = score
+            results["reasoning_alignment_reasoning"] = reason
+
+        elif metric == "visual_consistency":
+            prompt_text = prompt_visual_consistency.format(prompt=prompt)
+            resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64)
+            score, reason = extract_score_and_reason(resp, "visual_consistency_score", ["reasoning"])
+            results["visual_consistency_score"] = score
+            results["visual_consistency_reasoning"] = reason
+
+        elif metric == "image_quality":
+            resp = evaluate_with_gpt(prompt_image_quality, None, gen_b64)
+            score, reason = extract_score_and_reason(resp, "image_quality_score", ["reasoning"])
+            results["image_quality_score"] = score
+            results["image_quality_reasoning"] = reason
+
+    return results
+
+def process_image_eval(model, dimension, reasoning_type, image_id, metrics, tasks, output_jsonl_path):
+    """Process single image evaluation"""
+    try:
+        result = evaluate_images(model, dimension, reasoning_type, image_id, metrics)
+        key = f"{model}_{dimension}_{reasoning_type}_{image_id}"
+        save_result_jsonl(result, key, output_jsonl_path)
+        return True
+    except Exception as e:
+        logging.error(f"Error processing {model}/{dimension}/{reasoning_type}/{image_id}: {e}")
+        return False
+
+def run_synthetic_evaluation(
+    model_name, 
+    dimension="science",  # science/humanity/common_sense/logic
+    num_workers=10, 
+    metrics=None
+):
+    """
+    Run synthetic reasoning evaluation for a specific model and dimension
+    """
+    metrics = metrics or METRICS
+    reasoning_type = "synthetic"
+    
+    # Setup output directory and file
+    output_dir = os.path.join(RESULTS_DIR, "metrics", model_name)
+    os.makedirs(output_dir, exist_ok=True)
+    output_jsonl_path = os.path.join(output_dir, f"{dimension}_{reasoning_type}_metrics.jsonl")
+    
+    # Load task data
+    task_file = os.path.join(BENCH_DIR, dimension, reasoning_type, "task.json")
+    if not os.path.isfile(task_file):
+        logging.error(f"Task file not found: {task_file}")
+        return
+    
+    try:
+        with open(task_file, 'r', encoding='utf-8') as f:
+            tasks = json.load(f)
+    except Exception as e:
+        logging.error(f"Error loading task file {task_file}: {e}")
+        return
+    
+    # Create expected keys map
+    expected_keys_map = {task["id"]: task for task in tasks}
+    
+    # Load processed keys and determine missing metrics
+    key_missing_metrics, fully_completed_keys = load_processed_keys_with_missing_metrics(
+        output_jsonl_path, metrics, expected_keys_map
+    )
+    
+    print(f"Found {len(fully_completed_keys)} fully completed evaluations")
+    print(f"Found {len(key_missing_metrics)} tasks needing evaluation")
+    
+    if not key_missing_metrics:
+        print("All evaluations completed!")
+        return
+    
+    # Process with ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=num_workers) as executor:
+        futures = []
+        
+        for image_id, missing_metrics in key_missing_metrics.items():
+            future = executor.submit(
+                process_image_eval,
+                model_name, dimension, reasoning_type, image_id, 
+                missing_metrics, tasks, output_jsonl_path
+            )
+            futures.append(future)
+        
+        # Process results with progress bar
+        successful = 0
+        failed = 0
+        
+        for future in tqdm(as_completed(futures), total=len(futures), desc=f"Evaluating {model_name} {dimension} {reasoning_type}"):
+            try:
+                success = future.result()
+                if success:
+                    successful += 1
+                else:
+                    failed += 1
+            except Exception as e:
+                logging.error(f"Future failed: {e}")
+                failed += 1
+    
+    print(f"Evaluation completed: {successful} successful, {failed} failed")
+
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="VortexBench Synthetic Reasoning Evaluation")
+    parser.add_argument("--model", type=str, required=True, help="Model name for evaluation")
+    parser.add_argument("--dimension", type=str, default="science", choices=["science", "humanity", "common_sense", "logic"], help="Knowledge dimension")
+    parser.add_argument("--workers", type=int, default=10, help="Number of worker threads")
+    parser.add_argument("--metrics", nargs="+", choices=METRICS, default=METRICS, help="Metrics to evaluate")
+    
+    args = parser.parse_args()
+    
+    # Setup logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    run_synthetic_evaluation(
+        model_name=args.model,
+        dimension=args.dimension,
+        num_workers=args.workers,
+        metrics=args.metrics
+    )
