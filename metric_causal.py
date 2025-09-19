@@ -122,7 +122,7 @@ def encode_image_to_base64(image_input):
         logging.error(f"Error encoding image {image_input}: {e}")
         return None
 
-def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None, max_retries=5):
+def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None, target_base64=None, max_retries=5):
     """Evaluate images using Azure GPT-4o with intelligent retry mechanism"""
     messages = [{"role": "user", "content": [{"type": "text", "text": prompt}]}]
     
@@ -136,6 +136,12 @@ def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None, max_retr
         messages[0]["content"].append({
             "type": "image_url", 
             "image_url": {"url": f"data:image/png;base64,{edited_base64}"}
+        })
+    
+    if target_base64:
+        messages[0]["content"].append({
+            "type": "image_url",
+            "image_url": {"url": f"data:image/png;base64,{target_base64}"}
         })
 
     for attempt in range(max_retries):
@@ -321,7 +327,7 @@ def evaluate_images(image_id, metrics=None, vortex_data=None, api_key=None):
                 keywords=keywords_str,
                 target_description=target_description
             )
-            resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64)
+            resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64, target_b64)
             score, reason = extract_score_and_reason(resp, "reasoning_visual_score", ["reasoning"])
             results["reasoning_visual_score"] = score
             results["reasoning_visual_reasoning"] = reason

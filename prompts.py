@@ -78,11 +78,12 @@ You will be given:
 4. **Dimension**: the knowledge domain (science/humanity/common_sense/logic)
 5. **Keywords**: relevant domain concepts and principles for this task
 6. **Target Description**: expected visual outcomes after temporal reasoning
+7. **Target Image** (if available): reference image showing the expected result
 
-Note: Keywords are domain-specific concepts that should be considered or applied in the reasoning. Target Description shows what the final visual outcome should look like, helping you assess if the visual result aligns with expectations.
+Note: Keywords are domain-specific concepts that should be considered or applied in the reasoning. Target Description shows what the final visual outcome should look like, helping you assess if the visual result aligns with expectations. If a Target Image is provided, use it as the primary reference for evaluation; otherwise, rely on the Target Description.
 
 Your Objective:
-Evaluate whether the **generated image** matches the target description and demonstrates correct temporal reasoning. Focus on comparing the visual result with the expected outcomes described in the target description.
+Evaluate whether the **generated image** matches the target description (and target image if available) and demonstrates correct temporal reasoning. Focus on comparing the visual result with the expected outcomes.
 
 ## Visual Temporal Logic Principles:
 - **Sequential Progression**: Visual changes follow natural temporal order
@@ -97,13 +98,13 @@ Evaluate whether the **generated image** matches the target description and demo
 - **Logic**: Follow formal reasoning and mathematical principles
 
 ## Evaluation Steps:
-1. **Target Description Match**: Does the generated image contain the specific elements described in the target description?
+1. **Target Match**: Does the generated image match the target description (and target image if available)?
 2. **Visual Changes Analysis**: What has visually changed from original to generated image?
 3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles?
 4. **Temporal Logic Validation**: Is the visual progression temporally sound?
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Target Match**: Generated image perfectly matches all elements described in target description with correct temporal logic
+- **5 Perfect Target Match**: Generated image perfectly matches target description (and target image if available) with correct temporal logic
 - **4 Minor Target Gaps**: Most target elements present and correct, with one minor missing or incorrect detail
 - **3 Partial Target Match**: Some target elements present but notable gaps or inaccuracies in matching target description
 - **2 Limited Target Achievement**: Few target elements correctly present, major gaps in target description fulfillment
@@ -124,8 +125,9 @@ Evaluate whether the **generated image** matches the target description and demo
 → **reasoning_visual_score**: 4 (Strong visual progression but incomplete representation)
 
 ## Input
-**Original Image**
-**Generated Image**
+**Image 1: Original Image** (the starting point)
+**Image 2: Generated Image** (the result after temporal reasoning)
+**Image 3: Target Image** (if available, the reference showing expected result)
 **Task Instruction**: {prompt}
 **Dimension**: {dimension}
 **Keywords**: {keywords}
@@ -134,7 +136,7 @@ Evaluate whether the **generated image** matches the target description and demo
 ## Output Format
 {{
   "reasoning_visual_score": X,
-  "reasoning": "1. Target Description Match 2. Visual Changes Analysis 3. Domain Knowledge Check 4. Temporal Logic Validation"
+  "reasoning": "1. Target Match 2. Visual Changes Analysis 3. Domain Knowledge Check 4. Temporal Logic Validation"
 }}
 """
 
@@ -220,11 +222,12 @@ You will be given:
 4. **Dimension**: the knowledge domain (science/humanity/common_sense/logic)
 5. **Keywords**: relevant domain concepts and principles for this task
 6. **Target Description**: expected visual outcomes after spatial reasoning
+7. **Target Image** (if available): reference image showing the expected result
 
-Note: Keywords are domain-specific concepts that should be considered or applied in the reasoning. Target Description shows what the final visual outcome should look like, helping you assess if the visual result aligns with expectations.
+Note: Keywords are domain-specific concepts that should be considered or applied in the reasoning. Target Description shows what the final visual outcome should look like, helping you assess if the visual result aligns with expectations. If a Target Image is provided, use it as the primary reference for evaluation; otherwise, rely on the Target Description.
 
 Your Objective:
-Evaluate whether the **generated image** matches the target description and demonstrates correct spatial reasoning. Focus on comparing the visual result with the expected outcomes described in the target description.
+Evaluate whether the **generated image** matches the target description (and target image if available) and demonstrates correct spatial reasoning. Focus on comparing the visual result with the expected outcomes.
 
 ## Visual Spatial Logic Principles:
 - **Geometric Consistency**: Visual shapes, proportions, and relationships are maintained
@@ -239,21 +242,22 @@ Evaluate whether the **generated image** matches the target description and demo
 - **Logic**: Follow formal reasoning and mathematical principles
 
 ## Evaluation Steps:
-1. **Target Description Match**: Does the generated image contain the specific elements described in the target description?
+1. **Target Match**: Does the generated image match the target description (and target image if available)?
 2. **Visual Changes Analysis**: What spatial transformations are visually apparent?
 3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles?
 4. **Geometric Validation**: Are visual transformations geometrically valid?
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Target Match**: Generated image perfectly matches all elements described in target description with correct spatial logic
+- **5 Perfect Target Match**: Generated image perfectly matches target description (and target image if available) with correct spatial logic
 - **4 Minor Target Gaps**: Most target elements present and correct, with one minor missing or incorrect detail
 - **3 Partial Target Match**: Some target elements present but notable gaps or inaccuracies in matching target description
 - **2 Limited Target Achievement**: Few target elements correctly present, major gaps in target description fulfillment
 - **1 Target Mismatch**: Generated image fails to match target description or shows fundamental logical errors
 
 ## Input
-**Original Image**
-**Generated Image**
+**Image 1: Original Image** (the starting point)
+**Image 2: Generated Image** (the result after spatial reasoning)
+**Image 3: Target Image** (if available, the reference showing expected result)
 **Task Instruction**: {prompt}
 **Dimension**: {dimension}
 **Keywords**: {keywords}
@@ -262,7 +266,7 @@ Evaluate whether the **generated image** matches the target description and demo
 ## Output Format
 {{
   "reasoning_visual_score": X,
-  "reasoning": "1. Target Description Match 2. Visual Changes Analysis 3. Domain Knowledge Check 4. Geometric Validation"
+  "reasoning": "1. Target Match 2. Visual Changes Analysis 3. Domain Knowledge Check 4. Geometric Validation"
 }}
 """
 
@@ -348,11 +352,12 @@ You will be given:
 4. **Dimension**: the knowledge domain (science/humanity/common_sense/logic)
 5. **Keywords**: relevant domain concepts and principles for this task
 6. **Target Description**: expected visual outcomes after quantitative reasoning
+7. **Target Image** (if available): reference image showing the expected result
 
-Note: Keywords are domain-specific concepts that should be considered or applied in the reasoning. Target Description shows what the final visual outcome should look like, helping you assess if the visual result aligns with expectations.
+Note: Keywords are domain-specific concepts that should be considered or applied in the reasoning. Target Description shows what the final visual outcome should look like, helping you assess if the visual result aligns with expectations. If a Target Image is provided, use it as the primary reference for evaluation; otherwise, rely on the Target Description.
 
 Your Objective:
-Evaluate whether the **generated image** matches the target description and demonstrates correct quantitative reasoning. Focus on comparing the visual result with the expected outcomes described in the target description.
+Evaluate whether the **generated image** matches the target description (and target image if available) and demonstrates correct quantitative reasoning. Focus on comparing the visual result with the expected outcomes.
 
 ## Visual Quantitative Logic Principles:
 - **Mathematical Relationships**: Visual numbers, ratios, and proportions are correct
@@ -367,21 +372,22 @@ Evaluate whether the **generated image** matches the target description and demo
 - **Logic**: Follow formal reasoning and mathematical principles
 
 ## Evaluation Steps:
-1. **Target Description Match**: Does the generated image contain the specific elements described in the target description?
+1. **Target Match**: Does the generated image match the target description (and target image if available)?
 2. **Visual Changes Analysis**: What numerical/proportional changes are visually apparent?
 3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles?
 4. **Mathematical Validation**: Are visual calculations and proportions mathematically sound?
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Target Match**: Generated image perfectly matches all elements described in target description with correct quantitative logic
+- **5 Perfect Target Match**: Generated image perfectly matches target description (and target image if available) with correct quantitative logic
 - **4 Minor Target Gaps**: Most target elements present and correct, with one minor missing or incorrect detail
 - **3 Partial Target Match**: Some target elements present but notable gaps or inaccuracies in matching target description
 - **2 Limited Target Achievement**: Few target elements correctly present, major gaps in target description fulfillment
 - **1 Target Mismatch**: Generated image fails to match target description or shows fundamental logical errors
 
 ## Input
-**Original Image**
-**Generated Image**
+**Image 1: Original Image** (the starting point)
+**Image 2: Generated Image** (the result after quantitative reasoning)
+**Image 3: Target Image** (if available, the reference showing expected result)
 **Task Instruction**: {prompt}
 **Dimension**: {dimension}
 **Keywords**: {keywords}
@@ -390,7 +396,7 @@ Evaluate whether the **generated image** matches the target description and demo
 ## Output Format
 {{
   "reasoning_visual_score": X,
-  "reasoning": "1. Target Description Match 2. Visual Changes Analysis 3. Domain Knowledge Check 4. Mathematical Validation"
+  "reasoning": "1. Target Match 2. Visual Changes Analysis 3. Domain Knowledge Check 4. Mathematical Validation"
 }}
 """
 
@@ -476,11 +482,12 @@ You will be given:
 4. **Dimension**: the knowledge domain (science/humanity/common_sense/logic)
 5. **Keywords**: relevant domain concepts and principles for this task
 6. **Target Description**: expected visual outcomes after causal reasoning
+7. **Target Image** (if available): reference image showing the expected result
 
-Note: Keywords are domain-specific concepts that should be considered or applied in the reasoning. Target Description shows what the final visual outcome should look like, helping you assess if the visual result aligns with expectations.
+Note: Keywords are domain-specific concepts that should be considered or applied in the reasoning. Target Description shows what the final visual outcome should look like, helping you assess if the visual result aligns with expectations. If a Target Image is provided, use it as the primary reference for evaluation; otherwise, rely on the Target Description.
 
 Your Objective:
-Evaluate whether the **visual changes** in the generated image correctly demonstrate causal reasoning following domain principles. Focus solely on what can be observed in the images.
+Evaluate whether the **visual changes** in the generated image correctly demonstrate causal reasoning following domain principles. Focus on comparing the visual result with the expected outcomes.
 
 ## Visual Causal Logic Principles:
 - **Cause-Effect Relationships**: Visual changes show clear cause-effect connections
@@ -495,21 +502,22 @@ Evaluate whether the **visual changes** in the generated image correctly demonst
 - **Logic**: Follow formal reasoning and mathematical principles
 
 ## Evaluation Steps:
-1. **Target Description Match**: Does the generated image contain the specific elements described in the target description?
+1. **Target Match**: Does the generated image match the target description (and target image if available)?
 2. **Visual Changes Analysis**: What causal effects are visually apparent?
 3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles?
 4. **Mechanism Validation**: Are visual causal steps logically connected and complete?
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Target Match**: Generated image perfectly matches all elements described in target description with correct causal logic
+- **5 Perfect Target Match**: Generated image perfectly matches target description (and target image if available) with correct causal logic
 - **4 Minor Target Gaps**: Most target elements present and correct, with one minor missing or incorrect detail
 - **3 Partial Target Match**: Some target elements present but notable gaps or inaccuracies in matching target description
 - **2 Limited Target Achievement**: Few target elements correctly present, major gaps in target description fulfillment
 - **1 Target Mismatch**: Generated image fails to match target description or shows fundamental logical errors
 
 ## Input
-**Original Image**
-**Generated Image**
+**Image 1: Original Image** (the starting point)
+**Image 2: Generated Image** (the result after causal reasoning)
+**Image 3: Target Image** (if available, the reference showing expected result)
 **Task Instruction**: {prompt}
 **Dimension**: {dimension}
 **Keywords**: {keywords}
@@ -518,7 +526,7 @@ Evaluate whether the **visual changes** in the generated image correctly demonst
 ## Output Format
 {{
   "reasoning_visual_score": X,
-  "reasoning": "1. Target Description Match 2. Visual Changes Analysis 3. Domain Knowledge Check 4. Mechanism Validation"
+  "reasoning": "1. Target Match 2. Visual Changes Analysis 3. Domain Knowledge Check 4. Mechanism Validation"
 }}
 """
 
@@ -532,11 +540,12 @@ You will be given:
 4. **Dimension**: the knowledge domain (science/humanity/common_sense/logic)
 5. **Keywords**: relevant domain concepts and principles for this task
 6. **Target Description**: expected visual outcomes after synthetic reasoning
+7. **Target Image** (if available): reference image showing the expected result
 
-Note: Keywords are domain-specific concepts that should be considered or applied in the reasoning. Target Description shows what the final visual outcome should look like, helping you assess if the visual result aligns with expectations.
+Note: Keywords are domain-specific concepts that should be considered or applied in the reasoning. Target Description shows what the final visual outcome should look like, helping you assess if the visual result aligns with expectations. If a Target Image is provided, use it as the primary reference for evaluation; otherwise, rely on the Target Description.
 
 Your Objective:
-Evaluate whether the **visual changes** in the generated image correctly demonstrate synthetic reasoning following domain principles. Focus solely on what can be observed in the images.
+Evaluate whether the **visual changes** in the generated image correctly demonstrate synthetic reasoning following domain principles. Focus on comparing the visual result with the expected outcomes.
 
 ## Visual Synthetic Logic Principles:
 - **Creative Plausibility**: Visual new/modified objects are realistic and believable
@@ -551,21 +560,22 @@ Evaluate whether the **visual changes** in the generated image correctly demonst
 - **Logic**: Follow formal reasoning and mathematical principles
 
 ## Evaluation Steps:
-1. **Target Description Match**: Does the generated image contain the specific elements described in the target description?
+1. **Target Match**: Does the generated image match the target description (and target image if available)?
 2. **Visual Changes Analysis**: What synthetic transformations are visually apparent?
 3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles?
 4. **Plausibility Validation**: Are visual new/modified objects realistic and logically sound?
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Target Match**: Generated image perfectly matches all elements described in target description with correct synthetic logic
+- **5 Perfect Target Match**: Generated image perfectly matches target description (and target image if available) with correct synthetic logic
 - **4 Minor Target Gaps**: Most target elements present and correct, with one minor missing or incorrect detail
 - **3 Partial Target Match**: Some target elements present but notable gaps or inaccuracies in matching target description
 - **2 Limited Target Achievement**: Few target elements correctly present, major gaps in target description fulfillment
 - **1 Target Mismatch**: Generated image fails to match target description or shows fundamental logical errors
 
 ## Input
-**Original Image**
-**Generated Image**
+**Image 1: Original Image** (the starting point)
+**Image 2: Generated Image** (the result after synthetic reasoning)
+**Image 3: Target Image** (if available, the reference showing expected result)
 **Task Instruction**: {prompt}
 **Dimension**: {dimension}
 **Keywords**: {keywords}
@@ -574,7 +584,7 @@ Evaluate whether the **visual changes** in the generated image correctly demonst
 ## Output Format
 {{
   "reasoning_visual_score": X,
-  "reasoning": "1. Target Description Match 2. Visual Changes Analysis 3. Domain Knowledge Check 4. Plausibility Validation"
+  "reasoning": "1. Target Match 2. Visual Changes Analysis 3. Domain Knowledge Check 4. Plausibility Validation"
 }}
 """
 
@@ -687,8 +697,8 @@ Evaluate whether the **reasoning process text** and the **visual reasoning resul
 4. **Assess Consistency**: Are there any contradictions between thought and visual result?
 
 ## Input
-**Original Image**
-**Generated Image**
+**Image 1: Original Image** (the starting point)
+**Image 2: Generated Image** (the reasoning result)
 **Task Instruction**: {prompt}
 **Think Output**: {think_output}
 
@@ -738,8 +748,8 @@ Evaluate whether **non-target elements** in the generated image remain **visuall
 4. **Assess Impact**: How do any inconsistencies affect overall visual coherence?
 
 ## Input
-**Original Image**
-**Generated Image**
+**Image 1: Original Image** (the starting point)
+**Image 2: Generated Image** (the result after reasoning/editing)
 **Task Instruction**: {prompt}
 
 ## Output Format
