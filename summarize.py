@@ -176,7 +176,7 @@ def print_summary_report(summary):
     print("Overall Results:")
     print("-" * 40)
     overall = summary["overall"]
-    for metric_key in ["RP", "RV", "RA", "DK", "TA", "VC", "IQ", "AVG"]:
+    for metric_key in ["RP", "RV", "RA", "VC", "IQ", "AVG"]:
         if metric_key in overall:
             print(f"{metric_key}: {overall[metric_key]:.2f}")
 
