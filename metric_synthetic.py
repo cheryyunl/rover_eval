@@ -122,8 +122,8 @@ def encode_image_to_base64(image_input):
         logging.error(f"Error encoding image {image_input}: {e}")
         return None
 
-def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None):
-    """Evaluate images using Azure GPT-4o with rate limiting and retries"""
+def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None, max_retries=5):
+    """Evaluate images using Azure GPT-4o with intelligent retry mechanism"""
     messages = [{"role": "user", "content": [{"type": "text", "text": prompt}]}]
     
     if original_base64:
@@ -138,7 +138,7 @@ def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None):
             "image_url": {"url": f"data:image/png;base64,{edited_base64}"}
         })
 
-    for attempt in range(3):
+    for attempt in range(max_retries):
         try:
             response = azure_client.chat.completions.create(
                 model=AZURE_DEPLOYMENT_NAME,
@@ -146,13 +146,35 @@ def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None):
                 max_tokens=1000,
                 temperature=0.0,
             )
-            time.sleep(1)  # Rate limiting
-            return response.choices[0].message.content
+            
+            content = response.choices[0].message.content
+            if content and content.strip():
+                # Quick validation - check if response looks like valid JSON
+                content = content.strip()
+                if (content.startswith('{') and content.endswith('}')) or (content.startswith('{{') and content.endswith('}}')):
+                    try:
+                        # Handle double braces from prompt format (same as extract_json_field)
+                        test_content = content
+                        if test_content.startswith('{{') and test_content.endswith('}}'):
+                            test_content = test_content[1:-1]  # Remove outer braces
+                        
+                        json.loads(test_content)
+                        time.sleep(1)  # Rate limiting
+                        return content  # Return original content for extract_score_and_reason to handle
+                    except json.JSONDecodeError:
+                        logging.warning(f"Attempt {attempt + 1}: Invalid JSON response, retrying...")
+                else:
+                    logging.warning(f"Attempt {attempt + 1}: Non-JSON response format, retrying...")
+            else:
+                logging.warning(f"Attempt {attempt + 1}: Empty response, retrying...")
+                
+            time.sleep(2 ** min(attempt, 3))  # Exponential backoff, capped at 8 seconds
+            
         except Exception as e:
             logging.warning(f"Azure GPT evaluation attempt {attempt + 1} failed: {e}")
-            time.sleep(2 ** attempt)  # Exponential backoff
+            time.sleep(2 ** min(attempt, 3))  # Exponential backoff
 
-    logging.error("Azure GPT evaluation failed after 3 attempts.")
+    logging.error(f"Azure GPT evaluation failed after {max_retries} attempts.")
     return ""
 
 def extract_json_field(response, score_key, reason_key):
@@ -278,8 +300,15 @@ def evaluate_images(image_id, metrics=None, vortex_data=None, api_key=None):
                 target_description=target_description,
                 think_output=think_output if think_output else "No think output available"
             )
-            resp = evaluate_with_gpt(prompt_text, orig_b64, None)
-            score, reason = extract_score_and_reason(resp, "reasoning_process_score", ["reasoning"])
+            # Retry logic for null scores
+            score, reason = None, None
+            for retry_attempt in range(3):  # Max 3 retries for null scores
+                resp = evaluate_with_gpt(prompt_text, orig_b64, None)
+                score, reason = extract_score_and_reason(resp, "reasoning_process_score", ["reasoning"])
+                if score is not None:  # Success, break out
+                    break
+                logging.warning(f"Reasoning process evaluation attempt {retry_attempt + 1} returned null, retrying...")
+            
             results["reasoning_process_score"] = score
             results["reasoning_process_reasoning"] = reason
             
@@ -300,8 +329,15 @@ def evaluate_images(image_id, metrics=None, vortex_data=None, api_key=None):
                 prompt=prompt,
                 think_output=think_output if think_output else "No think output available"
             )
-            resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64)
-            score, reason = extract_score_and_reason(resp, "reasoning_alignment_score", ["reasoning"])
+            # Retry logic for null scores
+            score, reason = None, None
+            for retry_attempt in range(3):  # Max 3 retries for null scores
+                resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64)
+                score, reason = extract_score_and_reason(resp, "reasoning_alignment_score", ["reasoning"])
+                if score is not None:  # Success, break out
+                    break
+                logging.warning(f"Reasoning alignment evaluation attempt {retry_attempt + 1} returned null, retrying...")
+            
             results["reasoning_alignment_score"] = score
             results["reasoning_alignment_reasoning"] = reason
 
@@ -320,108 +356,3 @@ def evaluate_images(image_id, metrics=None, vortex_data=None, api_key=None):
 
     return results
 
-def process_image_eval(model, dimension, reasoning_type, image_id, metrics, tasks, output_jsonl_path):
-    """Process single image evaluation"""
-    try:
-        result = evaluate_images(model, dimension, reasoning_type, image_id, metrics)
-        key = f"{model}_{dimension}_{reasoning_type}_{image_id}"
-        save_result_jsonl(result, key, output_jsonl_path)
-        return True
-    except Exception as e:
-        logging.error(f"Error processing {model}/{dimension}/{reasoning_type}/{image_id}: {e}")
-        return False
-
-def run_synthetic_evaluation(
-    model_name, 
-    dimension="science",  # science/humanity/common_sense/logic
-    num_workers=10, 
-    metrics=None
-):
-    """
-    Run synthetic reasoning evaluation for a specific model and dimension
-    """
-    metrics = metrics or METRICS
-    reasoning_type = "synthetic"
-    
-    # Setup output directory and file
-    output_dir = os.path.join(RESULTS_DIR, "metrics", model_name)
-    os.makedirs(output_dir, exist_ok=True)
-    output_jsonl_path = os.path.join(output_dir, f"{dimension}_{reasoning_type}_metrics.jsonl")
-    
-    # Load task data
-    task_file = os.path.join(BENCH_DIR, dimension, reasoning_type, "task.json")
-    if not os.path.isfile(task_file):
-        logging.error(f"Task file not found: {task_file}")
-        return
-    
-    try:
-        with open(task_file, 'r', encoding='utf-8') as f:
-            tasks = json.load(f)
-    except Exception as e:
-        logging.error(f"Error loading task file {task_file}: {e}")
-        return
-    
-    # Create expected keys map
-    expected_keys_map = {task["id"]: task for task in tasks}
-    
-    # Load processed keys and determine missing metrics
-    key_missing_metrics, fully_completed_keys = load_processed_keys_with_missing_metrics(
-        output_jsonl_path, metrics, expected_keys_map
-    )
-    
-    print(f"Found {len(fully_completed_keys)} fully completed evaluations")
-    print(f"Found {len(key_missing_metrics)} tasks needing evaluation")
-    
-    if not key_missing_metrics:
-        print("All evaluations completed!")
-        return
-    
-    # Process with ThreadPoolExecutor
-    with ThreadPoolExecutor(max_workers=num_workers) as executor:
-        futures = []
-        
-        for image_id, missing_metrics in key_missing_metrics.items():
-            future = executor.submit(
-                process_image_eval,
-                model_name, dimension, reasoning_type, image_id, 
-                missing_metrics, tasks, output_jsonl_path
-            )
-            futures.append(future)
-        
-        # Process results with progress bar
-        successful = 0
-        failed = 0
-        
-        for future in tqdm(as_completed(futures), total=len(futures), desc=f"Evaluating {model_name} {dimension} {reasoning_type}"):
-            try:
-                success = future.result()
-                if success:
-                    successful += 1
-                else:
-                    failed += 1
-            except Exception as e:
-                logging.error(f"Future failed: {e}")
-                failed += 1
-    
-    print(f"Evaluation completed: {successful} successful, {failed} failed")
-
-if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="VortexBench Synthetic Reasoning Evaluation")
-    parser.add_argument("--model", type=str, required=True, help="Model name for evaluation")
-    parser.add_argument("--dimension", type=str, default="science", choices=["science", "humanity", "common_sense", "logic"], help="Knowledge dimension")
-    parser.add_argument("--workers", type=int, default=10, help="Number of worker threads")
-    parser.add_argument("--metrics", nargs="+", choices=METRICS, default=METRICS, help="Metrics to evaluate")
-    
-    args = parser.parse_args()
-    
-    # Setup logging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-    run_synthetic_evaluation(
-        model_name=args.model,
-        dimension=args.dimension,
-        num_workers=args.workers,
-        metrics=args.metrics
-    )
