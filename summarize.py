@@ -8,7 +8,7 @@ from collections import defaultdict
 
 # VortexBench structure definitions
 VORTEX_DIMENSIONS = ["science", "humanity", "common_sense", "logic"]
-VORTEX_REASONING_TYPES = ["temporal", "spatial", "quantitative", "causal", "synthetic"] 
+VORTEX_REASONING_TYPES = ["temporal", "spatial", "quantitative", "causal", "synthetic", "logical", "mathematical", "abstract"] 
 VORTEX_METRICS = ["reasoning_process", "reasoning_visual", "reasoning_alignment", "visual_consistency", "image_quality"]
 
 # Score names for display
@@ -23,12 +23,20 @@ METRIC_DISPLAY_NAMES = {
 
 def parse_task_id(task_id):
     """Parse task ID to extract dimension and reasoning_type"""
-    # Expected format: {dimension}_{reasoning_type}_{number}
-    # e.g., "science_temporal_1" -> ("science", "temporal")
+    # Expected formats:
+    # 1. {dimension}_{reasoning_type}_{number} - e.g., "science_temporal_1" -> ("science", "temporal")
+    # 2. {dimension}_{reasoning_type}_{number} - e.g., "logic_abstract_1" -> ("logic", "abstract")
+    # 3. {dimension}_{reasoning_type}_{number} - e.g., "logic_math_1" -> ("logic", "mathematical")
+    
     parts = task_id.split('_')
     if len(parts) >= 2:
         dimension = parts[0]
         reasoning_type = parts[1]
+        
+        # Handle special case: "math" -> "mathematical"
+        if reasoning_type == "math":
+            reasoning_type = "mathematical"
+            
         return dimension, reasoning_type
     return None, None
 
