@@ -20,7 +20,7 @@ from metric_logical import evaluate_images as evaluate_logical
 
 # Hugging Face dataset
 DATASET_NAME = "cheryyunl/ROVER-Gen"
-VORTEX_GEN_DIR = "/code/gen_banana"
+VORTEX_GEN_DIR = "/Users/cheryunl/Documents/eval/gen_banana"
 
 # Metric mapping
 REASONING_EVALUATORS = {
@@ -123,7 +123,9 @@ def run_vortex_evaluation(
     metrics=None,
     api_key=None,
     filter_dimension=None,
-    filter_reasoning_type=None
+    filter_reasoning_type=None,
+    force_reevaluate=False,
+    max_tasks=None
 ):
     """
     Run VortexBench evaluation using Hugging Face dataset
@@ -135,6 +137,8 @@ def run_vortex_evaluation(
         api_key: OpenAI API key
         filter_dimension: Filter by dimension (science/humanity/common_sense/logic)
         filter_reasoning_type: Filter by reasoning type (temporal/spatial/quantitative/causal/synthetic)
+        force_reevaluate: Force re-evaluation of already evaluated tasks
+        max_tasks: Maximum number of tasks to evaluate (None for all)
     """
     metrics = metrics or METRICS
     
@@ -159,17 +163,42 @@ def run_vortex_evaluation(
     
     print(f"Found {len(tasks)} tasks to evaluate")
     
-    # Check which tasks have generated images
+    # Check which tasks have generated images and haven't been evaluated
     valid_tasks = []
+    already_evaluated = set()
+    
+    # Load already evaluated tasks
+    if os.path.exists(output_jsonl_path):
+        with open(output_jsonl_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                try:
+                    data = json.loads(line.strip())
+                    task_id = data.get('key')
+                    if task_id:
+                        already_evaluated.add(task_id)
+                except json.JSONDecodeError:
+                    continue
+    
     for task in tasks:
         task_id = task["id"]
         gen_image_path = os.path.join(VORTEX_GEN_DIR, f"gen_{task_id}.png")
+        
         if os.path.exists(gen_image_path):
-            valid_tasks.append(task)
+            if task_id not in already_evaluated or force_reevaluate:
+                valid_tasks.append(task)
+            else:
+                print(f"Skipping already evaluated task: {task_id}")
         else:
             print(f"Warning: Generated image not found for {task_id}")
     
-    print(f"Found {len(valid_tasks)} tasks with generated images")
+    # Apply max_tasks limit if specified
+    if max_tasks is not None and max_tasks > 0:
+        original_count = len(valid_tasks)
+        valid_tasks = valid_tasks[:max_tasks]
+        print(f"Limited to {len(valid_tasks)} tasks (from {original_count} available)")
+    
+    print(f"Found {len(valid_tasks)} new tasks to evaluate")
+    print(f"Skipped {len(already_evaluated)} already evaluated tasks")
     
     if not valid_tasks:
         print("No tasks with generated images found. Please run generation first.")
@@ -213,6 +242,8 @@ if __name__ == "__main__":
     parser.add_argument("--api_key", type=str, help="[DEPRECATED] API key parameter - Azure credentials are configured in metric files")
     parser.add_argument("--dimension", type=str, choices=["science", "humanity", "common_sense", "logic"], help="Filter by dimension")
     parser.add_argument("--reasoning_type", type=str, choices=["temporal", "spatial", "quantitative", "causal", "synthetic"], help="Filter by reasoning type")
+    parser.add_argument("--force_reevaluate", action="store_true", help="Force re-evaluation of already evaluated tasks")
+    parser.add_argument("--max_tasks", type=int, help="Maximum number of tasks to evaluate (useful for testing)")
     
     args = parser.parse_args()
     
@@ -230,5 +261,7 @@ if __name__ == "__main__":
         metrics=args.metrics,
         api_key=api_key,
         filter_dimension=args.dimension,
-        filter_reasoning_type=args.reasoning_type
+        filter_reasoning_type=args.reasoning_type,
+        force_reevaluate=args.force_reevaluate,
+        max_tasks=args.max_tasks
     )

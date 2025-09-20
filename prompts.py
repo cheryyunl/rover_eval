@@ -104,11 +104,11 @@ Evaluate whether the **generated image** matches the target description (and tar
 4. **Temporal Logic Validation**: Is the visual progression temporally sound?
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Target Match**: Generated image perfectly matches target description (and target image if available) with correct temporal logic
-- **4 Minor Target Gaps**: Most target elements present and correct, with one minor missing or incorrect detail
-- **3 Partial Target Match**: Some target elements present but notable gaps or inaccuracies in matching target description
-- **2 Limited Target Achievement**: Few target elements correctly present, major gaps in target description fulfillment
-- **1 Target Mismatch**: Generated image fails to match target description or shows fundamental logical errors
+- **5 Perfect Target Match**: Generated image **precisely matches** target description (and target image if available) with **flawless temporal logic**; all required temporal changes are present and accurate with **zero gaps or errors**
+- **4 Minor Target Gaps**: The core temporal change is made, but **minor detail** is missing or slightly incorrect; strong overall match with minimal gaps
+- **3 Partial Target Match**: The main temporal idea is present, but **one or more required aspects** are wrong or incomplete; notable gaps exist
+- **2 Major Target Gaps**: **Most of the required temporal changes** are missing or poorly implemented; major gaps in target description fulfillment
+- **1 Target Mismatch**: The temporal reasoning is **not followed at all** or is **completely misinterpreted**; fundamental logical errors
 
 ### Example: Plant Growth
 **Task**: "Show what this seedling will look like after 3 months"
@@ -684,11 +684,11 @@ Evaluate whether the **reasoning process text** and the **visual reasoning resul
 3. **Is the reasoning coherent?** Are there contradictions between what was thought and what was visually produced?
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Alignment**: Process text and visual result are completely consistent and mutually supporting
-- **4 Minor Misalignment**: Strong overall alignment with one small inconsistency between text and visual
-- **3 Partial Alignment**: Some alignment present but notable discrepancies between process and visual reasoning
-- **2 Poor Alignment**: Minimal alignment; major contradictions between written process and visual result
-- **1 No Alignment**: Process text and visual result are contradictory or completely unrelated
+- **5 Perfect Alignment**: Process text and visual result are **completely consistent** and mutually supporting with **zero contradictions**; all process claims match visual evidence exactly
+- **4 Minor Misalignment**: Strong overall alignment with **minimal inconsistencies** that don't affect core reasoning; only very minor discrepancies
+- **3 Partial Alignment**: Some alignment present but **clear discrepancies** between process and visual reasoning; notable inconsistencies exist
+- **2 Poor Alignment**: **Minimal alignment** with major contradictions between written process and visual result; significant mismatches
+- **1 No Alignment**: Process text and visual result are **contradictory or completely unrelated**; no meaningful alignment
 
 ## Reasoning Steps:
 1. **Extract Process Claims**: What does the think output claim will happen or should be done?
@@ -735,11 +735,11 @@ Evaluate whether **non-target elements** in the generated image remain **visuall
 - **Process Effects**: Visual effects directly caused by the reasoning process
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Consistency**: All non-target elements remain visually identical to original
-- **4 Minor Inconsistency**: One very small unintended change that doesn't affect overall coherence
-- **3 Noticeable Inconsistency**: One clear unintended change in background or unrelated elements
-- **2 Significant Inconsistency**: Multiple unintended changes that compromise visual coherence
-- **1 Severe Inconsistency**: Major unintended alterations; image appears largely different
+- **5 Perfect Consistency**: All non-target elements remain **visually identical** to original with **zero unintended changes**; perfect preservation of all non-instructed elements
+- **4 Minor Inconsistency**: **Minimal unintended changes** that are barely noticeable and don't affect coherence; only very small discrepancies
+- **3 Noticeable Inconsistency**: **Clear unintended changes** in background or unrelated elements that affect coherence; notable inconsistencies exist
+- **2 Significant Inconsistency**: **Multiple unintended changes** that significantly compromise visual coherence; major inconsistencies
+- **1 Severe Inconsistency**: **Major unintended alterations** that make image appear largely different; fundamental consistency breakdown
 
 ## Reasoning Steps:
 1. **Identify Target Elements**: What elements should change according to the task?
@@ -791,11 +791,11 @@ Evaluate the **perceptual quality** of the AI-generated image, focusing on techn
 - **Professional Quality**: Would this pass as high-quality content?
 
 ## Evaluation Scale (1 to 5):
-- **5 Excellent Quality**: Professional-grade image with no noticeable artifacts or flaws
-- **4 Good Quality**: High-quality image with one minor flaw that doesn't affect overall impression
-- **3 Acceptable Quality**: Decent image with some noticeable flaws but overall usable
-- **2 Poor Quality**: Multiple significant flaws that detract from image usability  
-- **1 Very Poor Quality**: Major structural problems, severe artifacts, unusable quality
+- **5 Excellent Quality**: **Professional-grade image** with **no noticeable artifacts or flaws**; perfect technical excellence and photorealistic quality
+- **4 Good Quality**: **High-quality image** with **one minor flaw** that doesn't affect overall impression; minimal quality issues
+- **3 Acceptable Quality**: **Decent image** with **some noticeable flaws** but overall usable; clear quality problems exist
+- **2 Poor Quality**: **Multiple significant flaws** that detract from image usability; major quality problems
+- **1 Very Poor Quality**: **Major structural problems**, severe artifacts, unusable quality; fundamental quality breakdown
 
 ## Quality Checklist:
 For each dimension, mark ✓ (satisfactory) or ✗ (problematic):
@@ -830,7 +830,7 @@ You are an expert evaluator for logical reasoning tasks in visual AI systems. Yo
 **Target Description**: {target_description}
 
 ## Evaluation Criteria
-Rate the reasoning process quality (0-100) based on four criteria. **Weight each criterion according to the task type:**
+Rate the reasoning process quality (1-5) based on four criteria. **Weight each criterion according to the task type:**
 
 ### 1. Game Strategy & Logic (Weight: High for games, Medium for others)
 - Correct understanding of game rules and mechanics
@@ -861,6 +861,13 @@ Rate the reasoning process quality (0-100) based on four criteria. **Weight each
 - **Math/Geometry**: Weight Mathematical Reasoning heavily (40%), others equally (20% each)  
 - **Patterns/RPM**: Weight Pattern Recognition heavily (40%), others equally (20% each)
 - **Puzzles (tangram, maze)**: Weight Problem-Solving heavily (40%), others equally (20% each)
+
+## Evaluation Scale (1 to 5):
+- **5 Perfect Logical Process**: All reasoning steps are logically sound and domain-accurate with **flawless strategic thinking**; comprehensive understanding of task requirements
+- **4 Minor Logical Issues**: One small logical gap or minor domain knowledge error in reasoning; strong overall logic with minimal gaps
+- **3 Noticeable Logical Problems**: Clear reasoning flaws but general direction correct; notable gaps in logical progression
+- **2 Major Logical Failures**: Multiple serious logical errors that undermine reasoning; major gaps in strategic thinking
+- **1 Logical Breakdown**: Reasoning is fundamentally flawed or missing; no meaningful logical progression
 
 ## Quality Checklist:
 For each criterion, mark ✓ (satisfactory) or ✗ (problematic):
@@ -895,7 +902,7 @@ You are an expert evaluator for logical reasoning tasks in visual AI systems. Yo
 **Target Description**: {target_description}
 
 ## Evaluation Criteria
-Rate the visual reasoning quality (0-100) based on four criteria. **Weight each criterion according to the task type:**
+Rate the visual reasoning quality (1-5) based on four criteria. **Weight each criterion according to the task type:**
 
 ### 1. Game Logic Implementation (Weight: High for games, Medium for others)
 - Correct game move execution (tic-tac-toe, Connect Four, etc.)
@@ -926,6 +933,13 @@ Rate the visual reasoning quality (0-100) based on four criteria. **Weight each 
 - **Math/Geometry**: Weight Mathematical Accuracy heavily (40%), others equally (20% each)  
 - **Patterns/RPM**: Weight Pattern Recognition heavily (40%), others equally (20% each)
 - **Puzzles (tangram, maze)**: Weight Target Alignment heavily (40%), others equally (20% each)
+
+## Evaluation Scale (1 to 5):
+- **5 Perfect Target Match**: Generated image **precisely matches** target description (and target image if available) with **flawless logical implementation**; all required logical operations are present and accurate with **zero gaps or errors**
+- **4 Minor Target Gaps**: The core logical operation is made, but **minor detail** is missing or slightly incorrect; strong overall match with minimal gaps
+- **3 Partial Target Match**: The main logical idea is present, but **one or more required aspects** are wrong or incomplete; notable gaps exist
+- **2 Major Target Gaps**: **Most of the required logical operations** are missing or poorly implemented; major gaps in target description fulfillment
+- **1 Target Mismatch**: The logical reasoning is **not followed at all** or is **completely misinterpreted**; fundamental logical errors
 
 ## Quality Checklist:
 For each criterion, mark ✓ (satisfactory) or ✗ (problematic):

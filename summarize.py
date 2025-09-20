@@ -75,10 +75,26 @@ def load_vortex_results(jsonl_path):
                 }
                 
                 for metric in VORTEX_METRICS:
+                    # Try both formats: "metric_score" and "metric": {"score": value}
                     score_key = f"{metric}_score"
                     if score_key in result and result[score_key] is not None:
+                        # Format: "reasoning_visual_score": 3.0
                         normalized_score = normalize_score(result[score_key])
                         task_result[metric] = normalized_score
+                    elif metric in result and isinstance(result[metric], dict) and "score" in result[metric]:
+                        # Format: "reasoning_visual": {"score": 3.0, "explanation": "..."}
+                        score_value = result[metric]["score"]
+                        if score_value is not None:
+                            # Check if score is already normalized (0-100) or needs normalization (1-5)
+                            if score_value > 5:
+                                # Already normalized to 0-100, use as is
+                                task_result[metric] = score_value
+                            else:
+                                # Normalize from 1-5 to 0-100
+                                normalized_score = normalize_score(score_value)
+                                task_result[metric] = normalized_score
+                        else:
+                            task_result[metric] = None
                     else:
                         task_result[metric] = None
                 
@@ -215,6 +231,7 @@ def main():
     print_summary_report(summary)
     
     # Save detailed results to JSON
+    os.makedirs(args.output_dir, exist_ok=True)
     output_path = os.path.join(args.output_dir, 'vortex_summary.json')
     summary_data = {
         "summary": summary,

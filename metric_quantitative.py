@@ -25,20 +25,30 @@ import threading
 lock = threading.Lock()  # Thread-safe file writing lock
 
 # Import configuration
-from config import AZURE_API_KEY, AZURE_ENDPOINT, AZURE_DEPLOYMENT_NAME, AZURE_API_VERSION
+from config import OPENAI_API_KEY, OPENAI_MODEL, AZURE_API_KEY, AZURE_ENDPOINT, AZURE_DEPLOYMENT_NAME, AZURE_API_VERSION
 
-# Initialize Azure OpenAI client
-azure_client = AzureOpenAI(
-    azure_endpoint=AZURE_ENDPOINT,
-    api_key=AZURE_API_KEY,
-    api_version=AZURE_API_VERSION,
-)
+# Initialize OpenAI client (prefer OpenAI over Azure)
+if OPENAI_API_KEY:
+    # Use standard OpenAI API
+    from openai import OpenAI
+    openai_client = OpenAI(
+        api_key=OPENAI_API_KEY,
+    )
+    model_name = OPENAI_MODEL
+else:
+    # Fallback to Azure OpenAI
+    openai_client = AzureOpenAI(
+        azure_endpoint=AZURE_ENDPOINT,
+        api_key=AZURE_API_KEY,
+        api_version=AZURE_API_VERSION,
+    )
+    model_name = AZURE_DEPLOYMENT_NAME
 
 # Define metrics for all reasoning types
 METRICS = ["reasoning_process", "reasoning_visual", "reasoning_alignment", "visual_consistency", "image_quality"]
 
 # VortexBench data paths
-VORTEX_GEN_DIR = "/code/gen_banana"
+VORTEX_GEN_DIR = "/Users/cheryunl/Documents/eval/gen_banana"
 
 def save_result_jsonl(result, key, output_jsonl_path):
     """Save evaluation result to JSONL file with thread lock"""
@@ -147,10 +157,10 @@ def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None, target_b
 
     for attempt in range(max_retries):
         try:
-            response = azure_client.chat.completions.create(
-                model=AZURE_DEPLOYMENT_NAME,
+            response = openai_client.chat.completions.create(
+                model=model_name,
                 messages=messages,
-                max_tokens=1000,
+                max_tokens=3000,
                 temperature=0.0,
             )
             
@@ -200,34 +210,95 @@ def extract_json_field(response, score_key, reason_key):
         return None, None
 
 def extract_score_and_reason(response, score_key, reason_fields, prefix_patterns=None):
-    """Extract score and reasoning from GPT response with fallback patterns"""
-    # Try JSON extraction first
-    for reason_field in reason_fields:
-        score, reason = extract_json_field(response, score_key, reason_field)
-        if score is not None:
-            return score, reason
+    """Extract score and reasoning from GPT response with robust parsing"""
+    if not response or not response.strip():
+        return None, None
     
-    # Fallback to regex patterns
+    # Clean up response
+    response = response.strip()
+    
+    # Try multiple JSON parsing strategies
+    score, reason = None, None
+    
+    # Strategy 1: Direct JSON parsing
+    try:
+        data = json.loads(response)
+        score = data.get(score_key)
+        for reason_field in reason_fields:
+            reason = data.get(reason_field)
+            if reason:
+                break
+        if score is not None:
+            return int(score), reason
+    except:
+        pass
+    
+    # Strategy 2: Handle double braces
+    try:
+        if response.startswith('{{') and response.endswith('}}'):
+            clean_response = response[1:-1]
+            data = json.loads(clean_response)
+            score = data.get(score_key)
+            for reason_field in reason_fields:
+                reason = data.get(reason_field)
+                if reason:
+                    break
+            if score is not None:
+                return int(score), reason
+    except:
+        pass
+    
+    # Strategy 3: Extract JSON from text
+    try:
+        # Look for JSON-like patterns in the text
+        json_pattern = r'\{[^{}]*"' + re.escape(score_key) + r'"[^{}]*\}'
+        json_match = re.search(json_pattern, response, re.IGNORECASE)
+        if json_match:
+            json_str = json_match.group(0)
+            data = json.loads(json_str)
+            score = data.get(score_key)
+            for reason_field in reason_fields:
+                reason = data.get(reason_field)
+                if reason:
+                    break
+            if score is not None:
+                return int(score), reason
+    except:
+        pass
+    
+    # Strategy 4: Regex fallback patterns
     patterns = [
         rf"{score_key}\s*[:：]?\s*([1-5])",
         r"([1-5])\s*/\s*5",
         r"([1-5])\s+out\s+of\s+5",
+        r"score\s*[:：]?\s*([1-5])",
+        r"rating\s*[:：]?\s*([1-5])",
     ]
     if prefix_patterns:
         patterns = prefix_patterns + patterns
     
-    score = None
     for pat in patterns:
         m = re.search(pat, response, re.IGNORECASE)
         if m:
             score = int(m.group(1))
             break
     
-    # Extract reasoning
-    reason = None
-    reason_match = re.search(r"reasoning\s*[:：]\s*(.+)", response, re.IGNORECASE|re.DOTALL)
-    if reason_match:
-        reason = reason_match.group(1).strip()
+    # Extract reasoning with multiple patterns
+    reason_patterns = [
+        r"reasoning\s*[:：]\s*(.+)",
+        r"explanation\s*[:：]\s*(.+)",
+        r"analysis\s*[:：]\s*(.+)",
+        r"evaluation\s*[:：]\s*(.+)",
+    ]
+    
+    for pat in reason_patterns:
+        reason_match = re.search(pat, response, re.IGNORECASE|re.DOTALL)
+        if reason_match:
+            reason = reason_match.group(1).strip()
+            # Clean up reasoning text
+            if reason.startswith('"') and reason.endswith('"'):
+                reason = reason[1:-1]
+            break
     
     return score, reason
 

@@ -25,20 +25,30 @@ import threading
 lock = threading.Lock()  # Thread-safe file writing lock
 
 # Import configuration
-from config import AZURE_API_KEY, AZURE_ENDPOINT, AZURE_DEPLOYMENT_NAME, AZURE_API_VERSION
+from config import OPENAI_API_KEY, OPENAI_MODEL, AZURE_API_KEY, AZURE_ENDPOINT, AZURE_DEPLOYMENT_NAME, AZURE_API_VERSION
 
-# Initialize Azure OpenAI client
-azure_client = AzureOpenAI(
-    azure_endpoint=AZURE_ENDPOINT,
-    api_key=AZURE_API_KEY,
-    api_version=AZURE_API_VERSION,
-)
+# Initialize OpenAI client (prefer OpenAI over Azure)
+if OPENAI_API_KEY:
+    # Use standard OpenAI API
+    from openai import OpenAI
+    openai_client = OpenAI(
+        api_key=OPENAI_API_KEY,
+    )
+    model_name = OPENAI_MODEL
+else:
+    # Fallback to Azure OpenAI
+    openai_client = AzureOpenAI(
+        azure_endpoint=AZURE_ENDPOINT,
+        api_key=AZURE_API_KEY,
+        api_version=AZURE_API_VERSION,
+    )
+    model_name = AZURE_DEPLOYMENT_NAME
 
 # Define metrics for all reasoning types
 METRICS = ["reasoning_process", "reasoning_visual", "reasoning_alignment", "visual_consistency", "image_quality"]
 
 # VortexBench data paths
-VORTEX_GEN_DIR = "/code/gen_banana"
+VORTEX_GEN_DIR = "/Users/cheryunl/Documents/eval/gen_banana"
 
 def save_result_jsonl(result, key, output_jsonl_path):
     """Save evaluation result to JSONL file with thread lock"""
@@ -82,13 +92,24 @@ def load_processed_keys_with_missing_metrics(jsonl_path, metrics, expected_keys_
     
     return processed_keys, missing_metrics_map
 
-def encode_image_to_base64(image_path):
-    """Encode image to base64 string"""
+def encode_image_to_base64(image_input):
+    """Encode image to base64 string
+    
+    Args:
+        image_input: Can be a file path (string) or PIL Image object
+    """
     try:
-        with open(image_path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode('utf-8')
+        if isinstance(image_input, str):
+            # It's a file path
+            with open(image_input, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
+        else:
+            # It's a PIL Image object
+            buffer = BytesIO()
+            image_input.save(buffer, format='JPEG')
+            return base64.b64encode(buffer.getvalue()).decode('utf-8')
     except Exception as e:
-        logging.error(f"Error encoding image {image_path}: {e}")
+        logging.error(f"Error encoding image {image_input}: {e}")
         return None
 
 def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None, target_base64=None, max_retries=5):
@@ -112,36 +133,153 @@ def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None, target_b
             "type": "image_url",
             "image_url": {"url": f"data:image/png;base64,{target_base64}"}
         })
-    
+
     for attempt in range(max_retries):
         try:
-            response = azure_client.chat.completions.create(
-                model=AZURE_DEPLOYMENT_NAME,
+            response = openai_client.chat.completions.create(
+                model=model_name,
                 messages=messages,
-                max_tokens=1000,
-                temperature=0.1
+                max_tokens=3000,
+                temperature=0.0,
             )
             
-            content = response.choices[0].message.content.strip()
-            
-            # Extract score using regex
-            score_match = re.search(r'(\d+(?:\.\d+)?)', content)
-            if score_match:
-                score = float(score_match.group(1))
-                # Ensure score is in valid range
-                if 0 <= score <= 100:
-                    return score, content
+            content = response.choices[0].message.content
+            if content and content.strip():
+                # Quick validation - check if response looks like valid JSON
+                content = content.strip()
+                if (content.startswith('{') and content.endswith('}')) or (content.startswith('{{') and content.endswith('}}')):
+                    try:
+                        # Handle double braces from prompt format (same as extract_json_field)
+                        test_content = content
+                        if test_content.startswith('{{') and test_content.endswith('}}'):
+                            test_content = test_content[1:-1]  # Remove outer braces
+                        
+                        json.loads(test_content)
+                        time.sleep(1)  # Rate limiting
+                        return content  # Return original content for extract_score_and_reason to handle
+                    except json.JSONDecodeError:
+                        logging.warning(f"Attempt {attempt + 1}: Invalid JSON response, retrying...")
                 else:
-                    logging.warning(f"Score {score} out of range, retrying...")
+                    logging.warning(f"Attempt {attempt + 1}: Non-JSON response format, retrying...")
             else:
-                logging.warning(f"No score found in response: {content[:100]}...")
+                logging.warning(f"Attempt {attempt + 1}: Empty response, retrying...")
                 
-        except Exception as e:
-            logging.error(f"Attempt {attempt + 1} failed: {e}")
-            if attempt < max_retries - 1:
-                time.sleep(2 ** attempt)  # Exponential backoff
+            time.sleep(2 ** min(attempt, 3))  # Exponential backoff, capped at 8 seconds
             
-    return 0, "Failed to get valid response after all retries"
+        except Exception as e:
+            logging.warning(f"Azure GPT evaluation attempt {attempt + 1} failed: {e}")
+            time.sleep(2 ** min(attempt, 3))  # Exponential backoff
+
+    logging.error(f"Azure GPT evaluation failed after {max_retries} attempts.")
+    return ""
+
+def extract_json_field(response, score_key, reason_key):
+    """Extract score and reasoning from JSON response"""
+    try:
+        # Handle double braces from prompt format
+        if response.startswith('{{') and response.endswith('}}'):
+            response = response[1:-1]  # Remove outer braces
+        
+        # Try parsing as JSON first
+        data = json.loads(response)
+        score = data.get(score_key)
+        reason = data.get(reason_key) or data.get("reasoning")
+        return int(score) if score is not None else None, reason
+    except:
+        return None, None
+
+def extract_score_and_reason(response, score_key, reason_fields, prefix_patterns=None):
+    """Extract score and reasoning from GPT response with robust parsing"""
+    if not response or not response.strip():
+        return None, None
+    
+    # Clean up response
+    response = response.strip()
+    
+    # Try multiple JSON parsing strategies
+    score, reason = None, None
+    
+    # Strategy 1: Direct JSON parsing
+    try:
+        data = json.loads(response)
+        score = data.get(score_key)
+        for reason_field in reason_fields:
+            reason = data.get(reason_field)
+            if reason:
+                break
+        if score is not None:
+            return int(score), reason
+    except:
+        pass
+    
+    # Strategy 2: Handle double braces
+    try:
+        if response.startswith('{{') and response.endswith('}}'):
+            clean_response = response[1:-1]
+            data = json.loads(clean_response)
+            score = data.get(score_key)
+            for reason_field in reason_fields:
+                reason = data.get(reason_field)
+                if reason:
+                    break
+            if score is not None:
+                return int(score), reason
+    except:
+        pass
+    
+    # Strategy 3: Extract JSON from text
+    try:
+        # Look for JSON-like patterns in the text
+        json_pattern = r'\{[^{}]*"' + re.escape(score_key) + r'"[^{}]*\}'
+        json_match = re.search(json_pattern, response, re.IGNORECASE)
+        if json_match:
+            json_str = json_match.group(0)
+            data = json.loads(json_str)
+            score = data.get(score_key)
+            for reason_field in reason_fields:
+                reason = data.get(reason_field)
+                if reason:
+                    break
+            if score is not None:
+                return int(score), reason
+    except:
+        pass
+    
+    # Strategy 4: Regex fallback patterns
+    patterns = [
+        rf"{score_key}\s*[:：]?\s*([1-5])",
+        r"([1-5])\s*/\s*5",
+        r"([1-5])\s+out\s+of\s+5",
+        r"score\s*[:：]?\s*([1-5])",
+        r"rating\s*[:：]?\s*([1-5])",
+    ]
+    if prefix_patterns:
+        patterns = prefix_patterns + patterns
+    
+    for pat in patterns:
+        m = re.search(pat, response, re.IGNORECASE)
+        if m:
+            score = int(m.group(1))
+            break
+    
+    # Extract reasoning with multiple patterns
+    reason_patterns = [
+        r"reasoning\s*[:：]\s*(.+)",
+        r"explanation\s*[:：]\s*(.+)",
+        r"analysis\s*[:：]\s*(.+)",
+        r"evaluation\s*[:：]\s*(.+)",
+    ]
+    
+    for pat in reason_patterns:
+        reason_match = re.search(pat, response, re.IGNORECASE|re.DOTALL)
+        if reason_match:
+            reason = reason_match.group(1).strip()
+            # Clean up reasoning text
+            if reason.startswith('"') and reason.endswith('"'):
+                reason = reason[1:-1]
+            break
+    
+    return score, reason
 
 def evaluate_reasoning_process(think_output, prompt, dimension, keywords, target_description):
     """Evaluate reasoning process quality"""
@@ -156,8 +294,9 @@ def evaluate_reasoning_process(think_output, prompt, dimension, keywords, target
         think_output=think_output
     )
     
-    score, explanation = evaluate_with_gpt(prompt_text)
-    return score, explanation
+    resp = evaluate_with_gpt(prompt_text)
+    score, reason = extract_score_and_reason(resp, "reasoning_process_score", ["reasoning"])
+    return score if score is not None else 0, reason if reason else "No reasoning provided"
 
 def evaluate_reasoning_visual(original_image, generated_image, target_image, prompt, dimension, keywords, target_description):
     """Evaluate visual reasoning result"""
@@ -181,7 +320,8 @@ def evaluate_reasoning_visual(original_image, generated_image, target_image, pro
     )
     
     resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64, target_b64)
-    return resp
+    score, reason = extract_score_and_reason(resp, "reasoning_visual_score", ["reasoning"])
+    return score if score is not None else 0, reason if reason else "No reasoning provided"
 
 def evaluate_reasoning_alignment(original_image, generated_image, think_output, prompt):
     """Evaluate alignment between reasoning text and visual result"""
@@ -201,7 +341,8 @@ def evaluate_reasoning_alignment(original_image, generated_image, think_output, 
     )
     
     resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64)
-    return resp
+    score, reason = extract_score_and_reason(resp, "reasoning_alignment_score", ["reasoning"])
+    return score if score is not None else 0, reason if reason else "No reasoning provided"
 
 def evaluate_visual_consistency(original_image, generated_image, prompt):
     """Evaluate visual consistency"""
@@ -215,7 +356,8 @@ def evaluate_visual_consistency(original_image, generated_image, prompt):
     prompt_text = prompt_visual_consistency.format(prompt=prompt)
     
     resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64)
-    return resp
+    score, reason = extract_score_and_reason(resp, "visual_consistency_score", ["reasoning"])
+    return score if score is not None else 0, reason if reason else "No reasoning provided"
 
 def evaluate_image_quality(generated_image):
     """Evaluate image quality"""
@@ -227,10 +369,13 @@ def evaluate_image_quality(generated_image):
     prompt_text = prompt_image_quality
     
     resp = evaluate_with_gpt(prompt_text, None, gen_b64)
-    return resp
+    score, reason = extract_score_and_reason(resp, "image_quality_score", ["reasoning"])
+    return score if score is not None else 0, reason if reason else "No reasoning provided"
 
 def evaluate_images(image_id, metrics, vortex_data, api_key=None):
-    """Evaluate images for logical reasoning tasks"""
+    """
+    Evaluate logical reasoning images based on specified metrics
+    """
     try:
         # Get task data
         task_data = None

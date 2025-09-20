@@ -6,20 +6,25 @@ A comprehensive evaluation framework for visual reasoning models using 5 core me
 
 ### 1. Setup
 
-Configure your Azure OpenAI credentials (choose one):
+Configure your OpenAI credentials (choose one):
 
 **Option A: Environment Variables (Recommended)**
 ```bash
-export AZURE_OPENAI_API_KEY="your-api-key"
-export AZURE_OPENAI_ENDPOINT="your-endpoint"
-export AZURE_OPENAI_DEPLOYMENT="gpt-4o"
+export OPENAI_API_KEY="your-api-key"
+export OPENAI_MODEL="gpt-4o"
 ```
 
 **Option B: Edit config.py**
 ```python
-AZURE_API_KEY = "your-api-key"
-AZURE_ENDPOINT = "your-endpoint"
-AZURE_DEPLOYMENT_NAME = "gpt-4o"
+OPENAI_API_KEY = "your-api-key"
+OPENAI_MODEL = "gpt-4o"
+```
+
+**Legacy Azure Support (Deprecated)**
+```bash
+export AZURE_OPENAI_API_KEY="your-api-key"
+export AZURE_OPENAI_ENDPOINT="your-endpoint"
+export AZURE_OPENAI_DEPLOYMENT="gpt-4o"
 ```
 
 ### 2. Prepare Generated Results
@@ -148,7 +153,7 @@ The evaluation uses the `cheryyunl/ROVER-Gen` dataset from Hugging Face, which i
 ## Requirements
 
 - Python 3.7+
-- Azure OpenAI access
+- OpenAI API access
 - Required packages: `datasets`, `openai`, `PIL`, `tqdm`
 
 ## Troubleshooting
@@ -156,6 +161,6 @@ The evaluation uses the `cheryyunl/ROVER-Gen` dataset from Hugging Face, which i
 **Common Issues:**
 
 1. **"Generated image not found"** → Check `VORTEX_GEN_DIR` path and file naming
-2. **API errors** → Verify Azure OpenAI credentials in `config.py`
+2. **API errors** → Verify OpenAI credentials in `config.py`
 3. **Low RP/RA scores** → Normal if reasoning text files (.txt) are missing
 4. **Dataset loading fails** → Check internet connection for Hugging Face access

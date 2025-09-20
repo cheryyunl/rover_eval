@@ -5,8 +5,19 @@ Configuration file for VortexBench evaluation
 
 import os
 
-# Azure OpenAI Configuration
+# OpenAI Configuration
 # Users should set these environment variables or modify this file
+OPENAI_API_KEY = os.getenv(
+    "OPENAI_API_KEY", 
+    ""
+)
+
+OPENAI_MODEL = os.getenv(
+    "OPENAI_MODEL",
+    "gpt-4o"
+)
+
+# Legacy Azure support (deprecated)
 AZURE_API_KEY = os.getenv(
     "AZURE_OPENAI_API_KEY", 
     ""
@@ -29,22 +40,25 @@ AZURE_API_VERSION = os.getenv(
 
 # Instructions for users
 def print_config_help():
-    """Print help for configuring Azure OpenAI"""
-    print("""
-=== Azure OpenAI Configuration ===
+    """Print help for configuring OpenAI"""
+    print(f"""
+=== OpenAI Configuration ===
 
 Option 1 - Environment Variables (Recommended):
-export AZURE_OPENAI_API_KEY="your-api-key"
-export AZURE_OPENAI_ENDPOINT="your-endpoint"
-export AZURE_OPENAI_DEPLOYMENT="gpt-4o"
+export OPENAI_API_KEY="your-api-key"
+export OPENAI_MODEL="gpt-4o"
 
 Option 2 - Edit config.py:
-Modify the default values in /code/qwen/eval/gen/vortex/config.py
+Modify the default values in config.py
 
 Current Configuration:
-- API Key: {'Set' if AZURE_API_KEY else 'Not Set'}
-- Endpoint: {AZURE_ENDPOINT}
-- Deployment: {AZURE_DEPLOYMENT}
+- API Key: {'Set' if OPENAI_API_KEY else 'Not Set'}
+- Model: {OPENAI_MODEL}
+
+Legacy Azure Support (Deprecated):
+- Azure API Key: {'Set' if AZURE_API_KEY else 'Not Set'}
+- Azure Endpoint: {AZURE_ENDPOINT}
+- Azure Deployment: {AZURE_DEPLOYMENT_NAME}
     """)
 
 if __name__ == "__main__":
