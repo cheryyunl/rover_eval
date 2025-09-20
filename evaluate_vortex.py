@@ -16,10 +16,11 @@ from metric_spatial import evaluate_images as evaluate_spatial
 from metric_quantitative import evaluate_images as evaluate_quantitative
 from metric_causal import evaluate_images as evaluate_causal
 from metric_synthetic import evaluate_images as evaluate_synthetic
+from metric_logical import evaluate_images as evaluate_logical
 
 # Hugging Face dataset
 DATASET_NAME = "cheryyunl/ROVER-Gen"
-VORTEX_GEN_DIR = "/code/VortexBench/gen_banana"
+VORTEX_GEN_DIR = "/code/gen_banana"
 
 # Metric mapping
 REASONING_EVALUATORS = {
@@ -27,7 +28,10 @@ REASONING_EVALUATORS = {
     "spatial": evaluate_spatial,
     "quantitative": evaluate_quantitative, 
     "causal": evaluate_causal,
-    "synthetic": evaluate_synthetic
+    "synthetic": evaluate_synthetic,
+    "logical": evaluate_logical,
+    "mathematical": evaluate_logical,  # Map mathematical to logical
+    "abstract": evaluate_logical       # Map abstract to logical
 }
 
 METRICS = ["reasoning_process", "reasoning_visual", "reasoning_alignment", "visual_consistency", "image_quality"]

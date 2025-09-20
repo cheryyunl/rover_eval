@@ -819,3 +819,139 @@ For each dimension, mark ✓ (satisfactory) or ✗ (problematic):
   "reasoning": "1. Structural Analysis 2. Fidelity Evaluation 3. Artifact Detection 4. Naturalness Assessment"
 }}
 """
+
+# Logical Reasoning Prompts
+prompt_reasoning_process_logical = """
+You are an expert evaluator for logical reasoning tasks in visual AI systems. Your task is to assess the quality of written reasoning steps for logical, mathematical, and abstract reasoning tasks including games, puzzles, geometry, and pattern recognition.
+
+## Task Context
+**Dimension**: {dimension}
+**Keywords**: {keywords}
+**Target Description**: {target_description}
+
+## Evaluation Criteria
+Rate the reasoning process quality (0-100) based on four criteria. **Weight each criterion according to the task type:**
+
+### 1. Game Strategy & Logic (Weight: High for games, Medium for others)
+- Correct understanding of game rules and mechanics
+- Strategic thinking and optimal move selection
+- Pattern recognition in game states
+- Logical deduction for winning/blocking moves
+
+### 2. Mathematical & Geometric Reasoning (Weight: High for math/geometry, Medium for others)
+- Accurate mathematical calculations and formulas
+- Proper geometric principles and spatial relationships
+- Correct handling of measurements and proportions
+- Precise mathematical problem-solving steps
+
+### 3. Abstract Pattern Recognition (Weight: High for patterns/RPM, Medium for others)
+- Ability to identify visual patterns and sequences
+- Logical abstraction from concrete examples
+- Pattern completion and matrix reasoning
+- Conceptual understanding of abstract relationships
+
+### 4. Problem-Solving Methodology (Weight: Medium for all tasks)
+- Systematic approach to complex problems
+- Clear step-by-step reasoning progression
+- Appropriate strategy selection for task type
+- Effective decomposition of multi-step problems
+
+**Scoring Guidelines:**
+- **Games (tic-tac-toe, Connect Four, etc.)**: Weight Game Strategy heavily (40%), others equally (20% each)
+- **Math/Geometry**: Weight Mathematical Reasoning heavily (40%), others equally (20% each)  
+- **Patterns/RPM**: Weight Pattern Recognition heavily (40%), others equally (20% each)
+- **Puzzles (tangram, maze)**: Weight Problem-Solving heavily (40%), others equally (20% each)
+
+## Quality Checklist:
+For each criterion, mark ✓ (satisfactory) or ✗ (problematic):
+- Game strategy & logic: ✓/✗
+- Mathematical & geometric reasoning: ✓/✗
+- Abstract pattern recognition: ✓/✗
+- Problem-solving methodology: ✓/✗
+
+## Reasoning Steps:
+1. **Game Logic Analysis**: Evaluate strategic thinking and rule understanding
+2. **Mathematical Review**: Check calculations and geometric reasoning
+3. **Pattern Assessment**: Assess pattern recognition and abstract thinking
+4. **Methodology Evaluation**: Review problem-solving approach and clarity
+
+## Input
+**Task Instruction**: {prompt}
+**Think Output**: {think_output}
+
+## Output Format
+{{
+  "reasoning_process_score": X,
+  "reasoning": "1. Game Logic Analysis 2. Mathematical Review 3. Pattern Assessment 4. Methodology Evaluation"
+}}
+"""
+
+prompt_reasoning_visual_logical = """
+You are an expert evaluator for logical reasoning tasks in visual AI systems. Your task is to assess whether the generated visual result correctly implements the logical, mathematical, or abstract reasoning described in the task, including games, puzzles, geometry, and pattern recognition.
+
+## Task Context
+**Dimension**: {dimension}
+**Keywords**: {keywords}
+**Target Description**: {target_description}
+
+## Evaluation Criteria
+Rate the visual reasoning quality (0-100) based on four criteria. **Weight each criterion according to the task type:**
+
+### 1. Game Logic Implementation (Weight: High for games, Medium for others)
+- Correct game move execution (tic-tac-toe, Connect Four, etc.)
+- Proper game state representation and board updates
+- Accurate piece placement and movement rules
+- Valid strategic positioning and winning conditions
+
+### 2. Mathematical & Geometric Accuracy (Weight: High for math/geometry, Medium for others)
+- Correct geometric calculations and measurements
+- Accurate 3D spatial transformations and projections
+- Proper mathematical annotations and formulas
+- Precise geometric shape construction and manipulation
+
+### 3. Pattern Recognition & Completion (Weight: High for patterns/RPM, Medium for others)
+- Correct pattern identification and continuation
+- Accurate matrix completion and sequence generation
+- Proper visual pattern matching and abstraction
+- Valid puzzle solution implementation (tangram, maze, etc.)
+
+### 4. Target Alignment & Completeness (Weight: Medium for all tasks)
+- Match with target description requirements
+- Correct implementation of specified operations
+- Appropriate handling of task constraints
+- Successful achievement of reasoning goals
+
+**Scoring Guidelines:**
+- **Games (tic-tac-toe, Connect Four, etc.)**: Weight Game Logic heavily (40%), others equally (20% each)
+- **Math/Geometry**: Weight Mathematical Accuracy heavily (40%), others equally (20% each)  
+- **Patterns/RPM**: Weight Pattern Recognition heavily (40%), others equally (20% each)
+- **Puzzles (tangram, maze)**: Weight Target Alignment heavily (40%), others equally (20% each)
+
+## Quality Checklist:
+For each criterion, mark ✓ (satisfactory) or ✗ (problematic):
+- Game logic implementation: ✓/✗
+- Mathematical & geometric accuracy: ✓/✗
+- Pattern recognition & completion: ✓/✗
+- Target alignment & completeness: ✓/✗
+
+## Reasoning Steps:
+1. **Game Logic Review**: Evaluate game move correctness and rule adherence
+2. **Mathematical Verification**: Check geometric accuracy and calculations
+3. **Pattern Analysis**: Assess pattern recognition and completion quality
+4. **Target Comparison**: Verify alignment with expected results
+
+## Input
+**Image 1: Original Image** (the starting point)
+**Image 2: Generated Image** (the result after logical reasoning)
+**Image 3: Target Image** (if available, the reference showing expected result)
+**Task Instruction**: {prompt}
+**Dimension**: {dimension}
+**Keywords**: {keywords}
+**Target Description**: {target_description}
+
+## Output Format
+{{
+  "reasoning_visual_score": X,
+  "reasoning": "1. Game Logic Review 2. Mathematical Verification 3. Pattern Analysis 4. Target Comparison"
+}}
+"""

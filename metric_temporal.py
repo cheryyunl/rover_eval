@@ -38,7 +38,7 @@ azure_client = AzureOpenAI(
 METRICS = ["reasoning_process", "reasoning_visual", "reasoning_alignment", "visual_consistency", "image_quality"]
 
 # VortexBench data paths
-VORTEX_GEN_DIR = "/code/VortexBench/gen_banana"
+VORTEX_GEN_DIR = "/code/gen_banana"
 
 
 def save_result_jsonl(result, key, output_jsonl_path):
