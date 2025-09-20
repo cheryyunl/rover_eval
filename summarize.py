@@ -7,7 +7,7 @@ import argparse
 from collections import defaultdict
 
 # VortexBench structure definitions
-VORTEX_DIMENSIONS = ["science", "humanity", "common_sense", "logic"]
+VORTEX_DIMENSIONS = ["science", "culture", "common_sense", "logic"]
 VORTEX_REASONING_TYPES = ["temporal", "spatial", "quantitative", "causal", "synthetic", "logical", "mathematical", "abstract"] 
 VORTEX_METRICS = ["reasoning_process", "reasoning_visual", "reasoning_alignment", "visual_consistency", "image_quality"]
 
@@ -27,9 +27,24 @@ def parse_task_id(task_id):
     # 1. {dimension}_{reasoning_type}_{number} - e.g., "science_temporal_1" -> ("science", "temporal")
     # 2. {dimension}_{reasoning_type}_{number} - e.g., "logic_abstract_1" -> ("logic", "abstract")
     # 3. {dimension}_{reasoning_type}_{number} - e.g., "logic_math_1" -> ("logic", "mathematical")
+    # 4. {dimension}_{reasoning_type}_{number} - e.g., "common_sense_causal_1" -> ("common_sense", "causal")
     
     parts = task_id.split('_')
-    if len(parts) >= 2:
+    if len(parts) >= 3:
+        # Handle special case: "common_sense" dimension
+        if parts[0] == "common" and parts[1] == "sense":
+            dimension = "common_sense"
+            reasoning_type = parts[2]
+        else:
+            dimension = parts[0]
+            reasoning_type = parts[1]
+        
+        # Handle special case: "math" -> "mathematical"
+        if reasoning_type == "math":
+            reasoning_type = "mathematical"
+            
+        return dimension, reasoning_type
+    elif len(parts) >= 2:
         dimension = parts[0]
         reasoning_type = parts[1]
         
