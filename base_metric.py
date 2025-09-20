@@ -154,22 +154,9 @@ def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None, target_b
             
             content = response.choices[0].message.content
             if content and content.strip():
-                # Quick validation - check if response looks like valid JSON
                 content = content.strip()
-                if (content.startswith('{') and content.endswith('}')) or (content.startswith('{{') and content.endswith('}}')):
-                    try:
-                        # Handle double braces from prompt format (same as extract_json_field)
-                        test_content = content
-                        if test_content.startswith('{{') and test_content.endswith('}}'):
-                            test_content = test_content[1:-1]  # Remove outer braces
-                        
-                        json.loads(test_content)
-                        time.sleep(1)  # Rate limiting
-                        return content  # Return original content for extract_score_and_reason to handle
-                    except json.JSONDecodeError:
-                        logging.warning(f"Attempt {attempt + 1}: Invalid JSON response, retrying...")
-                else:
-                    logging.warning(f"Attempt {attempt + 1}: Non-JSON response format, retrying...")
+                time.sleep(1)  # Rate limiting
+                return content  # Return content for extract_score_and_reason to handle
             else:
                 logging.warning(f"Attempt {attempt + 1}: Empty response, retrying...")
                 
@@ -190,6 +177,9 @@ def extract_score_and_reason(response, score_key, reason_fields, prefix_patterns
     # Clean up response
     response = response.strip()
     
+    # Debug: Log the response for troubleshooting
+    logging.debug(f"Extracting from response: {response[:200]}...")
+    
     # Try multiple JSON parsing strategies
     score, reason = None, None
     
@@ -202,8 +192,19 @@ def extract_score_and_reason(response, score_key, reason_fields, prefix_patterns
             if reason:
                 break
         if score is not None:
-            return int(score), reason
-    except:
+            try:
+                score_int = int(score)
+                if 1 <= score_int <= 5:
+                    logging.debug(f"Strategy 1 success: score={score_int}, reason={reason}")
+                    return score_int, reason
+                else:
+                    logging.debug(f"Strategy 1: score {score_int} out of range [1-5]")
+            except (ValueError, TypeError):
+                logging.debug(f"Strategy 1: invalid score format '{score}'")
+        else:
+            logging.debug(f"Strategy 1: score_key '{score_key}' not found in {list(data.keys())}")
+    except Exception as e:
+        logging.debug(f"Strategy 1 failed: {e}")
         pass
     
     # Strategy 2: Handle double braces
@@ -240,21 +241,41 @@ def extract_score_and_reason(response, score_key, reason_fields, prefix_patterns
         pass
     
     # Strategy 4: Regex fallback patterns
+    # Convert score_key from "reasoning_process_score" to "reasoning process score"
+    score_key_readable = score_key.replace('_', ' ')
+    
     patterns = [
         rf"{score_key}\s*[:：]?\s*([1-5])",
+        rf"{score_key_readable}\s*[:：]?\s*([1-5])",  # "reasoning process score: 4"
+        rf"{score_key_readable}\s+is\s+([1-5])",      # "reasoning process score is 4"
+        rf"{score_key_readable}\s+=\s*([1-5])",       # "reasoning process score = 4"
         r"([1-5])\s*/\s*5",
         r"([1-5])\s+out\s+of\s+5",
         r"score\s*[:：]?\s*([1-5])",
         r"rating\s*[:：]?\s*([1-5])",
+        r"([1-5])\s+points?",           # "4 points"
+        r"([1-5])\s+stars?",            # "4 stars"
     ]
     if prefix_patterns:
         patterns = prefix_patterns + patterns
     
-    for pat in patterns:
+    for i, pat in enumerate(patterns):
         m = re.search(pat, response, re.IGNORECASE)
         if m:
-            score = int(m.group(1))
-            break
+            try:
+                score = int(m.group(1))
+                if 1 <= score <= 5:
+                    logging.debug(f"Strategy 4 pattern {i+1} success: score={score}")
+                    break
+                else:
+                    logging.debug(f"Strategy 4 pattern {i+1}: score {score} out of range [1-5]")
+            except (ValueError, TypeError):
+                logging.debug(f"Strategy 4 pattern {i+1}: invalid score format '{m.group(1)}'")
+        else:
+            logging.debug(f"Strategy 4 pattern {i+1} failed: {pat}")
+    
+    if score is None:
+        logging.debug("All 4 strategies failed to extract score")
     
     # Extract reasoning with multiple patterns
     reason_patterns = [
@@ -335,10 +356,11 @@ def evaluate_metric_with_retry(metric_name, prompt_text, orig_b64, gen_b64=None,
     score, reason = None, None
     for retry_attempt in range(max_retries):
         resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64, target_b64)
-        score, reason = extract_score_and_reason(resp, f"{metric_name}_score", ["reasoning"])
-        if score is not None:  # Success, break out
-            break
-        logging.warning(f"{metric_name} evaluation attempt {retry_attempt + 1} returned null, retrying...")
+        if resp:  # Only try to parse if we got a response
+            score, reason = extract_score_and_reason(resp, f"{metric_name}_score", ["reasoning"])
+            if score is not None:  # Success, break out
+                break
+        logging.warning(f"{metric_name} evaluation attempt {retry_attempt + 1} failed to extract valid score, retrying...")
     
     return score, reason
 
