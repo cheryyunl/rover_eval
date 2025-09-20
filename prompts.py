@@ -30,16 +30,16 @@ Note: Keywords are domain-specific concepts that should be considered or applied
 
 ## Evaluation Steps:
 1. **Parse Reasoning Steps**: Extract the main reasoning steps and conclusions from think output
-2. **Domain Knowledge Check**: Verify keyword-related principles and target description are correctly applied in text
+2. **Domain Knowledge Check**: Verify keyword-related principles and target description are correctly applied in text; ensure reasoning follows domain-specific scientific/cultural/commonsense/logical principles; reject violations of established domain knowledge
 3. **Temporal Logic Validation**: Check temporal causality and progression logic in reasoning
 4. **Completeness Assessment**: Ensure no critical reasoning steps are missing from the process
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Process Logic**: All reasoning steps are logically sound and domain-accurate
-- **4 Minor Process Issues**: One small logical gap or minor domain knowledge error in text
-- **3 Noticeable Process Problems**: Clear reasoning flaws in text but overall direction correct
-- **2 Major Process Failures**: Multiple serious logical errors that undermine written reasoning
-- **1 Process Logic Breakdown**: Written reasoning is fundamentally flawed or missing
+- **5 Perfect Process Logic**: All reasoning steps are logically sound, domain-accurate, and demonstrate complete mastery of the task requirements
+- **4 High Quality Process**: Reasoning achieves 80-90%+ of requirements with only minor gaps or imperfections that don't affect core logic
+- **3 Adequate Process**: Reasoning meets basic requirements (60-70%) but has noticeable flaws or missing important elements
+- **2 Poor Process**: Reasoning has major logical errors or fails to address most requirements (30-50% achievement)
+- **1 Failed Process**: Written reasoning is fundamentally flawed, missing, or completely off-track (<30% achievement)
 
 ### Example: Plant Growth
 **Task**: "Show what this seedling will look like after 3 months"
@@ -92,23 +92,23 @@ Evaluate whether the **generated image** matches the target description (and tar
 - **Time-Scale Consistency**: Visual changes match the specified time duration
 
 ## Domain-Specific Considerations:
-- **Science**: Apply scientific principles and natural laws
-- **Humanity**: Consider cultural, historical, and social contexts  
-- **Common Sense**: Use everyday knowledge and practical understanding
-- **Logic**: Follow formal reasoning and mathematical principles
+- **Science**: Apply scientific principles and natural laws; verify that reasoning follows established scientific facts and theories; reject unscientific claims or impossible phenomena
+- **Humanity**: Consider cultural, historical, and social contexts; ensure reasoning respects cultural norms and historical accuracy; avoid cultural insensitivity or anachronisms
+- **Common Sense**: Use everyday knowledge and practical understanding; verify reasoning aligns with real-world experience and logical expectations; reject unrealistic or impractical scenarios
+- **Logic**: Follow formal reasoning and mathematical principles; ensure logical consistency and mathematical accuracy; reject logical fallacies or mathematical errors
 
 ## Evaluation Steps:
 1. **Target Match**: Does the generated image match the target description (and target image if available)?
 2. **Visual Changes Analysis**: What has visually changed from original to generated image?
-3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles?
+3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles? Ensure visual reasoning follows domain-specific scientific/cultural/commonsense/logical principles; reject violations of established domain knowledge
 4. **Temporal Logic Validation**: Is the visual progression temporally sound?
 
 ## Evaluation Scale (1 to 5):
 - **5 Perfect Target Match**: Generated image **precisely matches** target description (and target image if available) with **flawless temporal logic**; all required temporal changes are present and accurate with **zero gaps or errors**
-- **4 Minor Target Gaps**: The core temporal change is made, but **minor detail** is missing or slightly incorrect; strong overall match with minimal gaps
-- **3 Partial Target Match**: The main temporal idea is present, but **one or more required aspects** are wrong or incomplete; notable gaps exist
-- **2 Major Target Gaps**: **Most of the required temporal changes** are missing or poorly implemented; major gaps in target description fulfillment
-- **1 Target Mismatch**: The temporal reasoning is **not followed at all** or is **completely misinterpreted**; fundamental logical errors
+- **4 High Quality Match**: Generated image achieves 80-90%+ of target requirements with only minor details missing or slightly incorrect; core temporal changes are correct
+- **3 Adequate Match**: Generated image meets basic requirements (60-70%) but has notable gaps, wrong aspects, or incomplete temporal changes
+- **2 Poor Match**: Generated image fails most target requirements (30-50% achievement) with major gaps or incorrect temporal reasoning
+- **1 Failed Match**: Generated image completely fails to match target or shows fundamental temporal logic errors (<30% achievement)
 
 ### Example: Plant Growth
 **Task**: "Show what this seedling will look like after 3 months"
@@ -165,23 +165,23 @@ Note: Keywords are domain-specific concepts that should be considered or applied
 - **Transformation Validity**: Rotations, translations, scaling are geometrically sound
 
 ## Domain-Specific Considerations:
-- **Science**: Apply scientific principles and natural laws
-- **Humanity**: Consider cultural, historical, and social contexts  
-- **Common Sense**: Use everyday knowledge and practical understanding
-- **Logic**: Follow formal reasoning and mathematical principles
+- **Science**: Apply scientific principles and natural laws; verify that reasoning follows established scientific facts and theories; reject unscientific claims or impossible phenomena
+- **Humanity**: Consider cultural, historical, and social contexts; ensure reasoning respects cultural norms and historical accuracy; avoid cultural insensitivity or anachronisms
+- **Common Sense**: Use everyday knowledge and practical understanding; verify reasoning aligns with real-world experience and logical expectations; reject unrealistic or impractical scenarios
+- **Logic**: Follow formal reasoning and mathematical principles; ensure logical consistency and mathematical accuracy; reject logical fallacies or mathematical errors
 
 ## Evaluation Steps:
 1. **Identify Spatial Changes**: What spatial transformations occurred?
-2. **Domain Knowledge Check**: Do changes follow keyword-related principles and target description?
+2. **Domain Knowledge Check**: Do changes follow keyword-related principles and target description? Ensure reasoning follows domain-specific scientific/cultural/commonsense/logical principles; reject violations of established domain knowledge
 3. **Geometric Validation**: Are transformations geometrically valid?
 4. **Consistency Assessment**: Are spatial relationships maintained correctly?
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Spatial Logic**: All spatial transformations follow geometric and domain principles flawlessly
-- **4 Minor Spatial Issues**: One small geometric inconsistency that doesn't break overall logic
-- **3 Noticeable Spatial Problems**: Clear spatial logic flaws but general transformation correct
-- **2 Major Spatial Failures**: Multiple serious geometric errors that undermine reasoning
-- **1 Spatial Logic Breakdown**: Spatial transformation violates fundamental geometric principles
+- **5 Perfect Spatial Logic**: All spatial transformations follow geometric and domain principles flawlessly with complete mastery of requirements
+- **4 High Quality Spatial Logic**: Spatial reasoning achieves 80-90%+ of requirements with only minor geometric inconsistencies that don't affect core logic
+- **3 Adequate Spatial Logic**: Spatial reasoning meets basic requirements (60-70%) but has noticeable flaws or missing important elements
+- **2 Poor Spatial Logic**: Spatial reasoning has major geometric errors or fails to address most requirements (30-50% achievement)
+- **1 Failed Spatial Logic**: Spatial reasoning is fundamentally flawed, missing, or violates basic geometric principles (<30% achievement)
 
 ### Example: Architectural Rotation
 **Task**: "Show this building from a 45-degree side view"
@@ -236,23 +236,23 @@ Evaluate whether the **generated image** matches the target description (and tar
 - **Transformation Validity**: Visual rotations, translations, scaling are geometrically sound
 
 ## Domain-Specific Considerations:
-- **Science**: Apply scientific principles and natural laws
-- **Humanity**: Consider cultural, historical, and social contexts  
-- **Common Sense**: Use everyday knowledge and practical understanding
-- **Logic**: Follow formal reasoning and mathematical principles
+- **Science**: Apply scientific principles and natural laws; verify that reasoning follows established scientific facts and theories; reject unscientific claims or impossible phenomena
+- **Humanity**: Consider cultural, historical, and social contexts; ensure reasoning respects cultural norms and historical accuracy; avoid cultural insensitivity or anachronisms
+- **Common Sense**: Use everyday knowledge and practical understanding; verify reasoning aligns with real-world experience and logical expectations; reject unrealistic or impractical scenarios
+- **Logic**: Follow formal reasoning and mathematical principles; ensure logical consistency and mathematical accuracy; reject logical fallacies or mathematical errors
 
 ## Evaluation Steps:
 1. **Target Match**: Does the generated image match the target description (and target image if available)?
 2. **Visual Changes Analysis**: What spatial transformations are visually apparent?
-3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles?
+3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles? Ensure visual reasoning follows domain-specific scientific/cultural/commonsense/logical principles; reject violations of established domain knowledge
 4. **Geometric Validation**: Are visual transformations geometrically valid?
 
 ## Evaluation Scale (1 to 5):
 - **5 Perfect Target Match**: Generated image perfectly matches target description (and target image if available) with correct spatial logic
-- **4 Minor Target Gaps**: Most target elements present and correct, with one minor missing or incorrect detail
-- **3 Partial Target Match**: Some target elements present but notable gaps or inaccuracies in matching target description
-- **2 Limited Target Achievement**: Few target elements correctly present, major gaps in target description fulfillment
-- **1 Target Mismatch**: Generated image fails to match target description or shows fundamental logical errors
+- **4 High Quality Match**: Generated image achieves 80-90%+ of target requirements with only minor details missing or slightly incorrect; core spatial changes are correct
+- **3 Adequate Match**: Generated image meets basic requirements (60-70%) but has notable gaps, wrong aspects, or incomplete spatial changes
+- **2 Poor Match**: Generated image fails most target requirements (30-50% achievement) with major gaps or incorrect spatial reasoning
+- **1 Failed Match**: Generated image completely fails to match target or shows fundamental spatial logic errors (<30% achievement)
 
 ## Input
 **Image 1: Original Image** (the starting point)
@@ -295,23 +295,23 @@ Note: Keywords are domain-specific concepts that should be considered or applied
 - **Proportional Changes**: Increases/decreases maintain logical ratios
 
 ## Domain-Specific Considerations:
-- **Science**: Apply scientific principles and natural laws
-- **Humanity**: Consider cultural, historical, and social contexts  
-- **Common Sense**: Use everyday knowledge and practical understanding
-- **Logic**: Follow formal reasoning and mathematical principles
+- **Science**: Apply scientific principles and natural laws; verify that reasoning follows established scientific facts and theories; reject unscientific claims or impossible phenomena
+- **Humanity**: Consider cultural, historical, and social contexts; ensure reasoning respects cultural norms and historical accuracy; avoid cultural insensitivity or anachronisms
+- **Common Sense**: Use everyday knowledge and practical understanding; verify reasoning aligns with real-world experience and logical expectations; reject unrealistic or impractical scenarios
+- **Logic**: Follow formal reasoning and mathematical principles; ensure logical consistency and mathematical accuracy; reject logical fallacies or mathematical errors
 
 ## Evaluation Steps:
 1. **Identify Quantitative Changes**: What numerical/proportional changes occurred?
-2. **Domain Knowledge Check**: Do quantities align with keyword-related principles and target description?
+2. **Domain Knowledge Check**: Do quantities align with keyword-related principles and target description? Ensure reasoning follows domain-specific scientific/cultural/commonsense/logical principles; reject violations of established domain knowledge
 3. **Mathematical Validation**: Are calculations and proportions mathematically sound?
 4. **Scale Assessment**: Are size/amount relationships logically consistent?
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Quantitative Logic**: All quantities and proportions follow mathematical and domain principles flawlessly
-- **4 Minor Quantitative Issues**: One small numerical inconsistency that doesn't break overall logic
-- **3 Noticeable Quantitative Problems**: Clear mathematical flaws but general direction correct
-- **2 Major Quantitative Failures**: Multiple serious numerical errors that undermine reasoning
-- **1 Quantitative Logic Breakdown**: Mathematical relationships violate fundamental principles
+- **5 Perfect Quantitative Logic**: All quantities and proportions follow mathematical and domain principles flawlessly with complete mastery of requirements
+- **4 High Quality Quantitative Logic**: Quantitative reasoning achieves 80-90%+ of requirements with only minor numerical inconsistencies that don't affect core logic
+- **3 Adequate Quantitative Logic**: Quantitative reasoning meets basic requirements (60-70%) but has noticeable flaws or missing important elements
+- **2 Poor Quantitative Logic**: Quantitative reasoning has major mathematical errors or fails to address most requirements (30-50% achievement)
+- **1 Failed Quantitative Logic**: Quantitative reasoning is fundamentally flawed, missing, or violates basic mathematical principles (<30% achievement)
 
 ### Example: Fruit Quantity Change
 **Task**: "Change the number of apples in this basket to exactly 10"
@@ -366,23 +366,23 @@ Evaluate whether the **generated image** matches the target description (and tar
 - **Proportional Changes**: Visual increases/decreases maintain logical ratios
 
 ## Domain-Specific Considerations:
-- **Science**: Apply scientific principles and natural laws
-- **Humanity**: Consider cultural, historical, and social contexts  
-- **Common Sense**: Use everyday knowledge and practical understanding
-- **Logic**: Follow formal reasoning and mathematical principles
+- **Science**: Apply scientific principles and natural laws; verify that reasoning follows established scientific facts and theories; reject unscientific claims or impossible phenomena
+- **Humanity**: Consider cultural, historical, and social contexts; ensure reasoning respects cultural norms and historical accuracy; avoid cultural insensitivity or anachronisms
+- **Common Sense**: Use everyday knowledge and practical understanding; verify reasoning aligns with real-world experience and logical expectations; reject unrealistic or impractical scenarios
+- **Logic**: Follow formal reasoning and mathematical principles; ensure logical consistency and mathematical accuracy; reject logical fallacies or mathematical errors
 
 ## Evaluation Steps:
 1. **Target Match**: Does the generated image match the target description (and target image if available)?
 2. **Visual Changes Analysis**: What numerical/proportional changes are visually apparent?
-3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles?
+3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles? Ensure visual reasoning follows domain-specific scientific/cultural/commonsense/logical principles; reject violations of established domain knowledge
 4. **Mathematical Validation**: Are visual calculations and proportions mathematically sound?
 
 ## Evaluation Scale (1 to 5):
 - **5 Perfect Target Match**: Generated image perfectly matches target description (and target image if available) with correct quantitative logic
-- **4 Minor Target Gaps**: Most target elements present and correct, with one minor missing or incorrect detail
-- **3 Partial Target Match**: Some target elements present but notable gaps or inaccuracies in matching target description
-- **2 Limited Target Achievement**: Few target elements correctly present, major gaps in target description fulfillment
-- **1 Target Mismatch**: Generated image fails to match target description or shows fundamental logical errors
+- **4 High Quality Match**: Generated image achieves 80-90%+ of target requirements with only minor details missing or slightly incorrect; core quantitative changes are correct
+- **3 Adequate Match**: Generated image meets basic requirements (60-70%) but has notable gaps, wrong aspects, or incomplete quantitative changes
+- **2 Poor Match**: Generated image fails most target requirements (30-50% achievement) with major gaps or incorrect quantitative reasoning
+- **1 Failed Match**: Generated image completely fails to match target or shows fundamental quantitative logic errors (<30% achievement)
 
 ## Input
 **Image 1: Original Image** (the starting point)
@@ -425,23 +425,23 @@ Note: Keywords are domain-specific concepts that should be considered or applied
 - **Causal Completeness**: All necessary causal factors are represented
 
 ## Domain-Specific Considerations:
-- **Science**: Apply scientific principles and natural laws
-- **Humanity**: Consider cultural, historical, and social contexts  
-- **Common Sense**: Use everyday knowledge and practical understanding
-- **Logic**: Follow formal reasoning and mathematical principles
+- **Science**: Apply scientific principles and natural laws; verify that reasoning follows established scientific facts and theories; reject unscientific claims or impossible phenomena
+- **Humanity**: Consider cultural, historical, and social contexts; ensure reasoning respects cultural norms and historical accuracy; avoid cultural insensitivity or anachronisms
+- **Common Sense**: Use everyday knowledge and practical understanding; verify reasoning aligns with real-world experience and logical expectations; reject unrealistic or impractical scenarios
+- **Logic**: Follow formal reasoning and mathematical principles; ensure logical consistency and mathematical accuracy; reject logical fallacies or mathematical errors
 
 ## Evaluation Steps:
 1. **Identify Causal Chain**: What cause-effect sequence is demonstrated?
-2. **Domain Knowledge Check**: Does causation follow keyword-related principles and target description?
+2. **Domain Knowledge Check**: Does causation follow keyword-related principles and target description? Ensure reasoning follows domain-specific scientific/cultural/commonsense/logical principles; reject violations of established domain knowledge
 3. **Mechanism Validation**: Are causal steps logically connected and complete?
 4. **Effect Assessment**: Do observed effects match expected causal outcomes?
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Causal Logic**: All cause-effect relationships follow domain principles flawlessly
-- **4 Minor Causal Issues**: One small causal inconsistency that doesn't break overall logic
-- **3 Noticeable Causal Problems**: Clear causal logic flaws but general direction correct
-- **2 Major Causal Failures**: Multiple serious causal errors that undermine reasoning
-- **1 Causal Logic Breakdown**: Cause-effect relationships violate fundamental principles
+- **5 Perfect Causal Logic**: All cause-effect relationships follow domain principles flawlessly with complete mastery of requirements
+- **4 High Quality Causal Logic**: Causal reasoning achieves 80-90%+ of requirements with only minor causal inconsistencies that don't affect core logic
+- **3 Adequate Causal Logic**: Causal reasoning meets basic requirements (60-70%) but has noticeable flaws or missing important elements
+- **2 Poor Causal Logic**: Causal reasoning has major causal errors or fails to address most requirements (30-50% achievement)
+- **1 Failed Causal Logic**: Causal reasoning is fundamentally flawed, missing, or violates basic causal principles (<30% achievement)
 
 ### Example: Potato Oxidation Prevention
 **Task**: "Apply lemon juice to prevent these cut potatoes from browning"
@@ -496,23 +496,23 @@ Evaluate whether the **visual changes** in the generated image correctly demonst
 - **Causal Completeness**: Visual representation includes necessary causal factors
 
 ## Domain-Specific Considerations:
-- **Science**: Apply scientific principles and natural laws
-- **Humanity**: Consider cultural, historical, and social contexts  
-- **Common Sense**: Use everyday knowledge and practical understanding
-- **Logic**: Follow formal reasoning and mathematical principles
+- **Science**: Apply scientific principles and natural laws; verify that reasoning follows established scientific facts and theories; reject unscientific claims or impossible phenomena
+- **Humanity**: Consider cultural, historical, and social contexts; ensure reasoning respects cultural norms and historical accuracy; avoid cultural insensitivity or anachronisms
+- **Common Sense**: Use everyday knowledge and practical understanding; verify reasoning aligns with real-world experience and logical expectations; reject unrealistic or impractical scenarios
+- **Logic**: Follow formal reasoning and mathematical principles; ensure logical consistency and mathematical accuracy; reject logical fallacies or mathematical errors
 
 ## Evaluation Steps:
 1. **Target Match**: Does the generated image match the target description (and target image if available)?
 2. **Visual Changes Analysis**: What causal effects are visually apparent?
-3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles?
+3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles? Ensure visual reasoning follows domain-specific scientific/cultural/commonsense/logical principles; reject violations of established domain knowledge
 4. **Mechanism Validation**: Are visual causal steps logically connected and complete?
 
 ## Evaluation Scale (1 to 5):
 - **5 Perfect Target Match**: Generated image perfectly matches target description (and target image if available) with correct causal logic
-- **4 Minor Target Gaps**: Most target elements present and correct, with one minor missing or incorrect detail
-- **3 Partial Target Match**: Some target elements present but notable gaps or inaccuracies in matching target description
-- **2 Limited Target Achievement**: Few target elements correctly present, major gaps in target description fulfillment
-- **1 Target Mismatch**: Generated image fails to match target description or shows fundamental logical errors
+- **4 High Quality Match**: Generated image achieves 80-90%+ of target requirements with only minor details missing or slightly incorrect; core causal changes are correct
+- **3 Adequate Match**: Generated image meets basic requirements (60-70%) but has notable gaps, wrong aspects, or incomplete causal changes
+- **2 Poor Match**: Generated image fails most target requirements (30-50% achievement) with major gaps or incorrect causal reasoning
+- **1 Failed Match**: Generated image completely fails to match target or shows fundamental causal logic errors (<30% achievement)
 
 ## Input
 **Image 1: Original Image** (the starting point)
@@ -554,15 +554,15 @@ Evaluate whether the **visual changes** in the generated image correctly demonst
 - **Style Harmonization**: Visual synthetic elements match overall visual style
 
 ## Domain-Specific Considerations:
-- **Science**: Apply scientific principles and natural laws
-- **Humanity**: Consider cultural, historical, and social contexts  
-- **Common Sense**: Use everyday knowledge and practical understanding
-- **Logic**: Follow formal reasoning and mathematical principles
+- **Science**: Apply scientific principles and natural laws; verify that reasoning follows established scientific facts and theories; reject unscientific claims or impossible phenomena
+- **Humanity**: Consider cultural, historical, and social contexts; ensure reasoning respects cultural norms and historical accuracy; avoid cultural insensitivity or anachronisms
+- **Common Sense**: Use everyday knowledge and practical understanding; verify reasoning aligns with real-world experience and logical expectations; reject unrealistic or impractical scenarios
+- **Logic**: Follow formal reasoning and mathematical principles; ensure logical consistency and mathematical accuracy; reject logical fallacies or mathematical errors
 
 ## Evaluation Steps:
 1. **Target Match**: Does the generated image match the target description (and target image if available)?
 2. **Visual Changes Analysis**: What synthetic transformations are visually apparent?
-3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles?
+3. **Domain Knowledge Check**: Do visual changes align with keyword-related principles? Ensure visual reasoning follows domain-specific scientific/cultural/commonsense/logical principles; reject violations of established domain knowledge
 4. **Plausibility Validation**: Are visual new/modified objects realistic and logically sound?
 
 ## Evaluation Scale (1 to 5):
@@ -613,14 +613,14 @@ Note: Keywords are domain-specific concepts that should be considered or applied
 - **Style Harmonization**: Synthetic elements match overall visual style
 
 ## Domain-Specific Considerations:
-- **Science**: Apply scientific principles and natural laws
-- **Humanity**: Consider cultural, historical, and social contexts  
-- **Common Sense**: Use everyday knowledge and practical understanding
-- **Logic**: Follow formal reasoning and mathematical principles
+- **Science**: Apply scientific principles and natural laws; verify that reasoning follows established scientific facts and theories; reject unscientific claims or impossible phenomena
+- **Humanity**: Consider cultural, historical, and social contexts; ensure reasoning respects cultural norms and historical accuracy; avoid cultural insensitivity or anachronisms
+- **Common Sense**: Use everyday knowledge and practical understanding; verify reasoning aligns with real-world experience and logical expectations; reject unrealistic or impractical scenarios
+- **Logic**: Follow formal reasoning and mathematical principles; ensure logical consistency and mathematical accuracy; reject logical fallacies or mathematical errors
 
 ## Evaluation Steps:
 1. **Identify Synthetic Changes**: What objects were added, modified, or transformed?
-2. **Domain Knowledge Check**: Do synthetic elements follow keyword-related principles and target description?
+2. **Domain Knowledge Check**: Do synthetic elements follow keyword-related principles and target description? Ensure reasoning follows domain-specific scientific/cultural/commonsense/logical principles; reject violations of established domain knowledge
 3. **Plausibility Validation**: Are new/modified objects realistic and logically sound?
 4. **Integration Assessment**: Do synthetic elements harmonize with the original scene?
 
@@ -678,23 +678,32 @@ Evaluate whether the **reasoning process text** and the **visual reasoning resul
 - **Step-by-Step Alignment**: Does each reasoning step in text correspond to visual evidence?
 - **Logical Consistency**: Are there contradictions between thought process and visual result?
 
+## Domain-Specific Considerations:
+- **Science**: Apply scientific principles and natural laws; verify that reasoning follows established scientific facts and theories; reject unscientific claims or impossible phenomena
+- **Humanity**: Consider cultural, historical, and social contexts; ensure reasoning respects cultural norms and historical accuracy; avoid cultural insensitivity or anachronisms
+- **Common Sense**: Use everyday knowledge and practical understanding; verify reasoning aligns with real-world experience and logical expectations; reject unrealistic or impractical scenarios
+- **Logic**: Follow formal reasoning and mathematical principles; ensure logical consistency and mathematical accuracy; reject logical fallacies or mathematical errors
+
 ## Key Questions:
 1. **Does the visual result reflect the written reasoning?** Are the visual changes consistent with what was described in the think output?
 2. **Are the conclusions aligned?** Do both process and visual reasoning reach the same conclusions?
 3. **Is the reasoning coherent?** Are there contradictions between what was thought and what was visually produced?
+4. **Is the task prompt correctly understood?** Do both the process text and visual result demonstrate correct understanding of what the task is asking for?
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Alignment**: Process text and visual result are **completely consistent** and mutually supporting with **zero contradictions**; all process claims match visual evidence exactly
-- **4 Minor Misalignment**: Strong overall alignment with **minimal inconsistencies** that don't affect core reasoning; only very minor discrepancies
-- **3 Partial Alignment**: Some alignment present but **clear discrepancies** between process and visual reasoning; notable inconsistencies exist
-- **2 Poor Alignment**: **Minimal alignment** with major contradictions between written process and visual result; significant mismatches
-- **1 No Alignment**: Process text and visual result are **contradictory or completely unrelated**; no meaningful alignment
+- **5 Perfect Alignment**: Process text and visual result are **completely consistent** and mutually supporting with **zero contradictions**; all process claims match visual evidence exactly; AND both correctly understand and implement the task prompt
+- **4 High Quality Alignment**: Process and visual achieve 80-90%+ alignment with only minor inconsistencies that don't affect core reasoning; AND both generally follow the task prompt correctly
+- **3 Adequate Alignment**: Some alignment present (60-70%) but clear discrepancies between process and visual reasoning; notable inconsistencies exist; OR good internal alignment but significant misunderstanding of task prompt
+- **2 Poor Alignment**: Minimal alignment (30-50%) with major contradictions between written process and visual result; significant mismatches; OR both process and visual fundamentally misunderstand the prompt
+- **1 No Alignment**: Process text and visual result are contradictory or completely unrelated (<30% alignment); OR complete failure to understand task prompt; if visual reasoning is fundamentally wrong or prompt is misunderstood, alignment cannot be high regardless of internal consistency
 
 ## Reasoning Steps:
 1. **Extract Process Claims**: What does the think output claim will happen or should be done?
 2. **Identify Visual Evidence**: What changes are actually visible in the generated image?
 3. **Compare Alignment**: Do the process claims match the visual evidence?
 4. **Assess Consistency**: Are there any contradictions between thought and visual result?
+5. **Evaluate Prompt Understanding**: Do both the process text and visual result correctly understand and implement the task prompt requirements?
+6. **Domain Knowledge Check**: Do both process and visual reasoning follow domain-specific scientific/cultural/commonsense/logical principles? Ensure alignment respects established domain knowledge and reject violations of domain principles
 
 ## Input
 **Image 1: Original Image** (the starting point)
@@ -705,7 +714,7 @@ Evaluate whether the **reasoning process text** and the **visual reasoning resul
 ## Output Format
 {{
   "reasoning_alignment_score": X,
-  "reasoning": "1. Process Claims 2. Visual Evidence 3. Alignment Comparison 4. Consistency Assessment"
+  "reasoning": "1. Process Claims 2. Visual Evidence 3. Alignment Comparison 4. Consistency Assessment 5. Prompt Understanding 6. Domain Knowledge Check"
 }}
 """
 
@@ -863,11 +872,11 @@ Rate the reasoning process quality (1-5) based on four criteria. **Weight each c
 - **Puzzles (tangram, maze)**: Weight Problem-Solving heavily (40%), others equally (20% each)
 
 ## Evaluation Scale (1 to 5):
-- **5 Perfect Logical Process**: All reasoning steps are logically sound and domain-accurate with **flawless strategic thinking**; comprehensive understanding of task requirements
-- **4 Minor Logical Issues**: One small logical gap or minor domain knowledge error in reasoning; strong overall logic with minimal gaps
-- **3 Noticeable Logical Problems**: Clear reasoning flaws but general direction correct; notable gaps in logical progression
-- **2 Major Logical Failures**: Multiple serious logical errors that undermine reasoning; major gaps in strategic thinking
-- **1 Logical Breakdown**: Reasoning is fundamentally flawed or missing; no meaningful logical progression
+- **5 Perfect Logical Process**: All reasoning steps are logically sound and domain-accurate with **flawless strategic thinking**; comprehensive understanding of task requirements with complete mastery
+- **4 High Quality Logical Process**: Logical reasoning achieves 80-90%+ of requirements with only minor logical gaps or imperfections that don't affect core logic
+- **3 Adequate Logical Process**: Logical reasoning meets basic requirements (60-70%) but has noticeable flaws or missing important elements
+- **2 Poor Logical Process**: Logical reasoning has major logical errors or fails to address most requirements (30-50% achievement)
+- **1 Failed Logical Process**: Logical reasoning is fundamentally flawed, missing, or completely off-track (<30% achievement)
 
 ## Quality Checklist:
 For each criterion, mark ✓ (satisfactory) or ✗ (problematic):
@@ -936,10 +945,10 @@ Rate the visual reasoning quality (1-5) based on four criteria. **Weight each cr
 
 ## Evaluation Scale (1 to 5):
 - **5 Perfect Target Match**: Generated image **precisely matches** target description (and target image if available) with **flawless logical implementation**; all required logical operations are present and accurate with **zero gaps or errors**
-- **4 Minor Target Gaps**: The core logical operation is made, but **minor detail** is missing or slightly incorrect; strong overall match with minimal gaps
-- **3 Partial Target Match**: The main logical idea is present, but **one or more required aspects** are wrong or incomplete; notable gaps exist
-- **2 Major Target Gaps**: **Most of the required logical operations** are missing or poorly implemented; major gaps in target description fulfillment
-- **1 Target Mismatch**: The logical reasoning is **not followed at all** or is **completely misinterpreted**; fundamental logical errors
+- **4 High Quality Match**: Generated image achieves 80-90%+ of target requirements with only minor details missing or slightly incorrect; core logical operations are correct
+- **3 Adequate Match**: Generated image meets basic requirements (60-70%) but has notable gaps, wrong aspects, or incomplete logical operations
+- **2 Poor Match**: Generated image fails most target requirements (30-50% achievement) with major gaps or incorrect logical reasoning
+- **1 Failed Match**: Generated image completely fails to match target or shows fundamental logical errors (<30% achievement)
 
 ## Quality Checklist:
 For each criterion, mark ✓ (satisfactory) or ✗ (problematic):
