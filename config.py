@@ -38,6 +38,18 @@ AZURE_API_VERSION = os.getenv(
     "2024-08-01-preview"
 )
 
+# VortexBench data paths
+VORTEX_GEN_DIR = os.getenv(
+    "VORTEX_GEN_DIR",
+    "/Users/cheryunl/Documents/eval/gen_banana"
+)
+
+# Evaluation settings
+MAX_RETRIES = int(os.getenv(
+    "MAX_RETRIES",
+    "3"
+))
+
 # Instructions for users
 def print_config_help():
     """Print help for configuring OpenAI"""
@@ -54,6 +66,8 @@ Modify the default values in config.py
 Current Configuration:
 - API Key: {'Set' if OPENAI_API_KEY else 'Not Set'}
 - Model: {OPENAI_MODEL}
+- VortexGen Directory: {VORTEX_GEN_DIR}
+- Max Retries: {MAX_RETRIES}
 
 Legacy Azure Support (Deprecated):
 - Azure API Key: {'Set' if AZURE_API_KEY else 'Not Set'}

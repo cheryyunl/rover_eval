@@ -27,11 +27,20 @@ export AZURE_OPENAI_ENDPOINT="your-endpoint"
 export AZURE_OPENAI_DEPLOYMENT="gpt-4o"
 ```
 
-### 2. Prepare Generated Results
+### 2. Configure Data Path
 
-Update the generation directory path in `evaluate_vortex.py`:
+Set the generation directory path (choose one):
+
+**Option A: Environment Variable (Recommended)**
+```bash
+export VORTEX_GEN_DIR="/path/to/your/generated/results"
+export MAX_RETRIES="3"  # Optional: number of retries for failed evaluations
+```
+
+**Option B: Edit config.py**
 ```python
-VORTEX_GEN_DIR = "/path/to/your/generated/results"  # Line 22
+VORTEX_GEN_DIR = "/path/to/your/generated/results"
+MAX_RETRIES = 3  # Number of retries for failed evaluations
 ```
 
 ### 3. Generated Files Format
@@ -149,6 +158,21 @@ python evaluate_vortex.py [OPTIONS]
 ## Data Source
 
 The evaluation uses the `cheryyunl/ROVER-Gen` dataset from Hugging Face, which is automatically downloaded. No manual data preparation needed.
+
+## Architecture
+
+The evaluation system uses a unified architecture:
+
+- **`evaluator.py`**: Unified evaluation function supporting all reasoning types
+- **`base_metric.py`**: Common functionality (image encoding, GPT evaluation, scoring, retry logic)
+- **`config.py`**: Configuration management (API keys, paths, retry settings)
+- **`prompts.py`**: Evaluation prompts for all reasoning types
+- **`evaluate_vortex.py`**: Main evaluation script with parallel processing
+
+**Key Features:**
+- **Unified retry mechanism**: All metrics use consistent retry logic for failed evaluations
+- **Configurable retries**: Set `MAX_RETRIES` in config or environment variables
+- **Robust error handling**: Graceful fallback for API failures and parsing errors
 
 ## Requirements
 

@@ -10,29 +10,12 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 from datasets import load_dataset
 
-# Import metric functions
-from metric_temporal import evaluate_images as evaluate_temporal
-from metric_spatial import evaluate_images as evaluate_spatial  
-from metric_quantitative import evaluate_images as evaluate_quantitative
-from metric_causal import evaluate_images as evaluate_causal
-from metric_synthetic import evaluate_images as evaluate_synthetic
-from metric_logical import evaluate_images as evaluate_logical
+# Import unified evaluator and config
+from evaluator import evaluate_images
+from config import VORTEX_GEN_DIR
 
 # Hugging Face dataset
 DATASET_NAME = "cheryyunl/ROVER-Gen"
-VORTEX_GEN_DIR = "/Users/cheryunl/Documents/eval/gen_banana"
-
-# Metric mapping
-REASONING_EVALUATORS = {
-    "temporal": evaluate_temporal,
-    "spatial": evaluate_spatial,
-    "quantitative": evaluate_quantitative, 
-    "causal": evaluate_causal,
-    "synthetic": evaluate_synthetic,
-    "logical": evaluate_logical,
-    "mathematical": evaluate_logical,  # Map mathematical to logical
-    "abstract": evaluate_logical       # Map abstract to logical
-}
 
 METRICS = ["reasoning_process", "reasoning_visual", "reasoning_alignment", "visual_consistency", "image_quality"]
 
@@ -48,16 +31,9 @@ def process_task_evaluation(task, vortex_data, metrics, api_key, output_jsonl_pa
     """Process single task evaluation"""
     try:
         task_id = task["id"]
-        reasoning_type = task["reasoning_type"]
         
-        # Get the appropriate evaluator
-        evaluator = REASONING_EVALUATORS.get(reasoning_type)
-        if not evaluator:
-            logging.error(f"No evaluator found for reasoning_type: {reasoning_type}")
-            return False
-            
-        # Run evaluation with unified new signature
-        result = evaluator(
+        # Run evaluation with unified evaluator
+        result = evaluate_images(
             image_id=task_id,
             metrics=metrics,
             vortex_data=vortex_data,

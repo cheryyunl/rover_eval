@@ -7,25 +7,16 @@ import base64
 import time
 import re
 import logging
-import requests
 from PIL import Image
 from io import BytesIO
 from openai import AzureOpenAI
-from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from prompts import (
-    prompt_reasoning_process_spatial,
-    prompt_reasoning_visual_spatial,
-    prompt_reasoning_alignment,
-    prompt_visual_consistency,
-    prompt_image_quality,
-)
 import threading
 
-lock = threading.Lock()  # Thread-safe file writing lock
-
 # Import configuration
-from config import OPENAI_API_KEY, OPENAI_MODEL, AZURE_API_KEY, AZURE_ENDPOINT, AZURE_DEPLOYMENT_NAME, AZURE_API_VERSION
+from config import OPENAI_API_KEY, OPENAI_MODEL, AZURE_API_KEY, AZURE_ENDPOINT, AZURE_DEPLOYMENT_NAME, AZURE_API_VERSION, VORTEX_GEN_DIR
+
+# Thread-safe file writing lock
+lock = threading.Lock()
 
 # Initialize OpenAI client (prefer OpenAI over Azure)
 if OPENAI_API_KEY:
@@ -46,8 +37,6 @@ else:
 
 # Define metrics for all reasoning types
 METRICS = ["reasoning_process", "reasoning_visual", "reasoning_alignment", "visual_consistency", "image_quality"]
-
-VORTEX_GEN_DIR = "/Users/cheryunl/Documents/eval/gen_banana"
 
 def save_result_jsonl(result, key, output_jsonl_path):
     """Save evaluation result to JSONL file with thread lock"""
@@ -133,7 +122,7 @@ def encode_image_to_base64(image_input):
         return None
 
 def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None, target_base64=None, max_retries=5):
-    """Evaluate images using Azure GPT-4o with intelligent retry mechanism"""
+    """Evaluate images using OpenAI GPT-4o with intelligent retry mechanism"""
     messages = [{"role": "user", "content": [{"type": "text", "text": prompt}]}]
     
     if original_base64:
@@ -187,26 +176,11 @@ def evaluate_with_gpt(prompt, original_base64=None, edited_base64=None, target_b
             time.sleep(2 ** min(attempt, 3))  # Exponential backoff, capped at 8 seconds
             
         except Exception as e:
-            logging.warning(f"Azure GPT evaluation attempt {attempt + 1} failed: {e}")
+            logging.warning(f"OpenAI GPT evaluation attempt {attempt + 1} failed: {e}")
             time.sleep(2 ** min(attempt, 3))  # Exponential backoff
 
-    logging.error(f"Azure GPT evaluation failed after {max_retries} attempts.")
+    logging.error(f"OpenAI GPT evaluation failed after {max_retries} attempts.")
     return ""
-
-def extract_json_field(response, score_key, reason_key):
-    """Extract score and reasoning from JSON response"""
-    try:
-        # Handle double braces from prompt format
-        if response.startswith('{{') and response.endswith('}}'):
-            response = response[1:-1]  # Remove outer braces
-        
-        # Try parsing as JSON first
-        data = json.loads(response)
-        score = data.get(score_key)
-        reason = data.get(reason_key) or data.get("reasoning")
-        return int(score) if score is not None else None, reason
-    except:
-        return None, None
 
 def extract_score_and_reason(response, score_key, reason_fields, prefix_patterns=None):
     """Extract score and reasoning from GPT response with robust parsing"""
@@ -301,135 +275,89 @@ def extract_score_and_reason(response, score_key, reason_fields, prefix_patterns
     
     return score, reason
 
-def evaluate_images(image_id, metrics=None, vortex_data=None, api_key=None):
-    """
-    Evaluate spatial reasoning images based on specified metrics
-    """
-    metrics = metrics or METRICS
-    results = {}
-    
-    # Note: Azure API key is configured globally, api_key parameter ignored
-    # Azure OpenAI client is already initialized with credentials
-    
-    # Find the specific task
-    task = None
-    for t in vortex_data["tasks"]:
-        if t["id"] == image_id:
-            task = t
-            break
-    
-    if not task:
-        logging.warning(f"Task ID {image_id} not found")
-        return results
+def get_task_data(vortex_data, image_id):
+    """Get task data for a specific image ID"""
+    for task in vortex_data["tasks"]:
+        if task["id"] == image_id:
+            return task
+    return None
 
-    # Get images from HF dataset (PIL Image objects) and file paths
-    original_image = task.get('image')  # PIL Image object from HF dataset
-    target_image = task.get('target_image')  # PIL Image object from HF dataset
-    
+def get_image_paths(image_id):
+    """Get file paths for generated image and think output"""
     generated_path = os.path.join(VORTEX_GEN_DIR, f"gen_{image_id}.png")
     think_path = os.path.join(VORTEX_GEN_DIR, f"gen_{image_id}.txt")
+    return generated_path, think_path
 
-    # Check if original image exists
-    if original_image is None:
-        logging.error(f"Original image not found for task {image_id}")
-        return results
-    if not os.path.isfile(generated_path):
-        logging.error(f"Generated image not found: {generated_path}")
-        return results
-    
-    # Load think output if exists
-    think_output = None
+def load_think_output(think_path):
+    """Load think output from file if it exists"""
     if os.path.isfile(think_path):
         try:
             with open(think_path, 'r', encoding='utf-8') as f:
-                think_output = f.read().strip()
+                return f.read().strip()
         except Exception as e:
             logging.warning(f"Error loading think output {think_path}: {e}")
+    return None
 
-    # Encode images
+def validate_inputs(task, generated_path, original_image):
+    """Validate that required inputs exist"""
+    if not task:
+        logging.warning(f"Task ID not found")
+        return False
+    
+    if original_image is None:
+        logging.error(f"Original image not found for task")
+        return False
+        
+    if not os.path.isfile(generated_path):
+        logging.error(f"Generated image not found: {generated_path}")
+        return False
+    
+    return True
+
+def encode_images(original_image, generated_path, target_image=None):
+    """Encode all required images to base64"""
     orig_b64 = encode_image_to_base64(original_image)  # PIL Image object
     gen_b64 = encode_image_to_base64(generated_path)   # File path
+    
     if not orig_b64 or not gen_b64:
-        logging.error(f"Failed to encode images for {image_id}")
-        return results
+        logging.error(f"Failed to encode images")
+        return None, None, None
     
     # Encode target image if available
     target_b64 = None
     if target_image is not None:
         target_b64 = encode_image_to_base64(target_image)
-
-    # Extract task information
-    prompt = task.get("prompt", "")
-    dimension = task.get("dimension", "")
-    keywords = task.get("keywords", "")  # Already a string in HF dataset
-    target_description = task.get("target_description", "")
     
-    # Keywords is already a string, use directly
-    keywords_str = keywords if keywords else ""
+    return orig_b64, gen_b64, target_b64
 
-    # Evaluate each metric
-    for metric in metrics:
-        if metric == "reasoning_process":
-            prompt_text = prompt_reasoning_process_spatial.format(
-                prompt=prompt,
-                dimension=dimension,
-                keywords=keywords_str,
-                target_description=target_description,
-                think_output=think_output if think_output else "No think output available"
-            )
-            # Retry logic for null scores
-            score, reason = None, None
-            for retry_attempt in range(3):  # Max 3 retries for null scores
-                resp = evaluate_with_gpt(prompt_text, orig_b64, None)
-                score, reason = extract_score_and_reason(resp, "reasoning_process_score", ["reasoning"])
-                if score is not None:  # Success, break out
-                    break
-                logging.warning(f"Reasoning process evaluation attempt {retry_attempt + 1} returned null, retrying...")
-            
-            results["reasoning_process_score"] = score
-            results["reasoning_process_reasoning"] = reason
-            
-        elif metric == "reasoning_visual":
-            prompt_text = prompt_reasoning_visual_spatial.format(
-                prompt=prompt,
-                dimension=dimension,
-                keywords=keywords_str,
-                target_description=target_description
-            )
-            resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64, target_b64)
-            score, reason = extract_score_and_reason(resp, "reasoning_visual_score", ["reasoning"])
-            results["reasoning_visual_score"] = score
-            results["reasoning_visual_reasoning"] = reason
+def evaluate_metric_with_retry(metric_name, prompt_text, orig_b64, gen_b64=None, target_b64=None, max_retries=3):
+    """Evaluate a metric with retry logic for null scores"""
+    score, reason = None, None
+    for retry_attempt in range(max_retries):
+        resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64, target_b64)
+        score, reason = extract_score_and_reason(resp, f"{metric_name}_score", ["reasoning"])
+        if score is not None:  # Success, break out
+            break
+        logging.warning(f"{metric_name} evaluation attempt {retry_attempt + 1} returned null, retrying...")
+    
+    return score, reason
 
-        elif metric == "reasoning_alignment":
-            prompt_text = prompt_reasoning_alignment.format(
-                prompt=prompt,
-                think_output=think_output if think_output else "No think output available"
-            )
-            # Retry logic for null scores
-            score, reason = None, None
-            for retry_attempt in range(3):  # Max 3 retries for null scores
-                resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64)
-                score, reason = extract_score_and_reason(resp, "reasoning_alignment_score", ["reasoning"])
-                if score is not None:  # Success, break out
-                    break
-                logging.warning(f"Reasoning alignment evaluation attempt {retry_attempt + 1} returned null, retrying...")
-            
-            results["reasoning_alignment_score"] = score
-            results["reasoning_alignment_reasoning"] = reason
+def evaluate_reasoning_process(prompt_text, orig_b64, max_retries=3):
+    """Evaluate reasoning process metric"""
+    return evaluate_metric_with_retry("reasoning_process", prompt_text, orig_b64, max_retries=max_retries)
 
-        elif metric == "visual_consistency":
-            prompt_text = prompt_visual_consistency.format(prompt=prompt)
-            resp = evaluate_with_gpt(prompt_text, orig_b64, gen_b64)
-            score, reason = extract_score_and_reason(resp, "visual_consistency_score", ["reasoning"])
-            results["visual_consistency_score"] = score
-            results["visual_consistency_reasoning"] = reason
+def evaluate_reasoning_visual(prompt_text, orig_b64, gen_b64, target_b64=None, max_retries=3):
+    """Evaluate reasoning visual metric"""
+    return evaluate_metric_with_retry("reasoning_visual", prompt_text, orig_b64, gen_b64, target_b64, max_retries=max_retries)
 
-        elif metric == "image_quality":
-            resp = evaluate_with_gpt(prompt_image_quality, None, gen_b64)
-            score, reason = extract_score_and_reason(resp, "image_quality_score", ["reasoning"])
-            results["image_quality_score"] = score
-            results["image_quality_reasoning"] = reason
+def evaluate_reasoning_alignment(prompt_text, orig_b64, gen_b64, max_retries=3):
+    """Evaluate reasoning alignment metric"""
+    return evaluate_metric_with_retry("reasoning_alignment", prompt_text, orig_b64, gen_b64, max_retries=max_retries)
 
-    return results
+def evaluate_visual_consistency(prompt_text, orig_b64, gen_b64, max_retries=3):
+    """Evaluate visual consistency metric"""
+    return evaluate_metric_with_retry("visual_consistency", prompt_text, orig_b64, gen_b64, max_retries=max_retries)
 
+def evaluate_image_quality(prompt_text, gen_b64, max_retries=3):
+    """Evaluate image quality metric"""
+    return evaluate_metric_with_retry("image_quality", prompt_text, None, gen_b64, max_retries=max_retries)
