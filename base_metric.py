@@ -115,6 +115,9 @@ def encode_image_to_base64(image_input):
         else:
             # It's a PIL Image object
             buffer = BytesIO()
+            # Convert to RGB if necessary (handles RGBA, L, P, etc.)
+            if image_input.mode != 'RGB':
+                image_input = image_input.convert('RGB')
             image_input.save(buffer, format='JPEG')
             return base64.b64encode(buffer.getvalue()).decode('utf-8')
     except Exception as e:
