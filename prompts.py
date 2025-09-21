@@ -110,7 +110,21 @@ Evaluate whether the **generated image** matches the target description (and tar
 - **2 Poor Match**: Generated image fails most target requirements (30-50% achievement) with major gaps or incorrect temporal reasoning
 - **1 Failed Match**: Generated image completely fails to match target or shows fundamental temporal logic errors (<30% achievement)
 
-### Example: Plant Growth
+### Example 1 (Score: 5): Perfect Plant Growth
+**Task**: "Show what this seedling will look like after 3 months"
+**Dimension**: "science"
+**Keywords**: "plant development, photosynthesis, growth"
+**Target Description**: "leaves expanded and more numerous; stem visibly longer; root system extended underground"
+
+**Evaluation**:
+1. **Visual Changes**: ✔ Leaves significantly expanded, ✔ Stem clearly elongated, ✔ Root system visible underground
+2. **Domain Knowledge**: ✔ Growth follows photosynthesis principles perfectly, ✔ 3-month timeframe accurate
+3. **Temporal Logic**: ✔ All development stages shown correctly, ✔ Natural growth progression
+4. **Completeness**: ✔ All major growth aspects visible, ✔ Above and below ground development
+
+→ **reasoning_visual_score**: 5 (Perfect temporal reasoning with complete visual representation)
+
+### Example 2 (Score: 4): Good Plant Growth
 **Task**: "Show what this seedling will look like after 3 months"
 **Dimension**: "science"
 **Keywords**: "plant development, photosynthesis, growth"
@@ -123,6 +137,34 @@ Evaluate whether the **generated image** matches the target description (and tar
 4. **Completeness**: ✔ Major growth visible, ✘ Underground development not represented
 
 → **reasoning_visual_score**: 4 (Strong visual progression but incomplete representation)
+
+### Example 3 (Score: 2): Poor Plant Growth
+**Task**: "Show what this seedling will look like after 3 months"
+**Dimension**: "science"
+**Keywords**: "plant development, photosynthesis, growth"
+**Target Description**: "leaves expanded and more numerous; stem visibly longer; root system extended underground"
+
+**Evaluation**:
+1. **Visual Changes**: ✘ Leaves barely changed, ✘ Stem same length, ✘ No root development
+2. **Domain Knowledge**: ✘ Growth doesn't follow photosynthesis principles, ✘ 3-month timeframe ignored
+3. **Temporal Logic**: ✘ No clear development stages, ✘ Unrealistic growth pattern
+4. **Completeness**: ✘ Minimal growth visible, ✘ Most requirements not met
+
+→ **reasoning_visual_score**: 2 (Poor temporal reasoning with minimal visual changes)
+
+### Example 4 (Score: 1): Failed Plant Growth
+**Task**: "Show what this seedling will look like after 3 months"
+**Dimension**: "science"
+**Keywords**: "plant development, photosynthesis, growth"
+**Target Description**: "leaves expanded and more numerous; stem visibly longer; root system extended underground"
+
+**Evaluation**:
+1. **Visual Changes**: ✘ Plant appears dead/wilted, ✘ No growth visible, ✘ Wrong direction
+2. **Domain Knowledge**: ✘ Completely violates plant biology, ✘ Shows impossible outcomes
+3. **Temporal Logic**: ✘ No logical progression, ✘ Contradicts natural growth
+4. **Completeness**: ✘ No target requirements met, ✘ Fundamental misunderstanding
+
+→ **reasoning_visual_score**: 1 (Complete failure of temporal reasoning)
 
 ## Input
 **Image 1: Original Image** (the starting point)
@@ -254,6 +296,48 @@ Evaluate whether the **generated image** matches the target description (and tar
 - **2 Poor Match**: Generated image fails most target requirements (30-50% achievement) with major gaps or incorrect spatial reasoning
 - **1 Failed Match**: Generated image completely fails to match target or shows fundamental spatial logic errors (<30% achievement)
 
+### Example 1 (Score: 5): Perfect Building Rotation
+**Task**: "Show this building from a 45-degree side view"
+**Dimension**: "humanity"
+**Keywords**: "architectural proportions, structural logic, perspective"
+**Target Description**: "building viewed from 45-degree side angle with preserved proportions"
+
+**Evaluation**:
+1. **Target Match**: ✔ Perfect 45-degree side view achieved, ✔ All proportions preserved exactly
+2. **Visual Changes**: ✔ Viewpoint rotated correctly, ✔ Perspective transformation accurate
+3. **Domain Knowledge**: ✔ Architectural proportions perfect, ✔ Structural logic maintained
+4. **Geometric Validation**: ✔ All geometric transformations sound, ✔ No distortions
+
+→ **reasoning_visual_score**: 5 (Perfect spatial reasoning with flawless geometric accuracy)
+
+### Example 2 (Score: 3): Adequate Building Rotation
+**Task**: "Show this building from a 45-degree side view"
+**Dimension**: "humanity"
+**Keywords**: "architectural proportions, structural logic, perspective"
+**Target Description**: "building viewed from 45-degree side angle with preserved proportions"
+
+**Evaluation**:
+1. **Target Match**: ✘ Side view achieved but angle incorrect (~30 degrees), ✘ Some proportions distorted
+2. **Visual Changes**: ✔ Viewpoint rotated, ✘ Perspective transformation partially wrong
+3. **Domain Knowledge**: ✘ Architectural proportions compromised, ✔ Basic structural logic maintained
+4. **Geometric Validation**: ✘ Geometric transformations have errors, ✘ Noticeable distortions
+
+→ **reasoning_visual_score**: 3 (Adequate spatial reasoning with notable geometric errors)
+
+### Example 3 (Score: 1): Failed Building Rotation
+**Task**: "Show this building from a 45-degree side view"
+**Dimension**: "humanity"
+**Keywords**: "architectural proportions, structural logic, perspective"
+**Target Description**: "building viewed from 45-degree side angle with preserved proportions"
+
+**Evaluation**:
+1. **Target Match**: ✘ No side view achieved, ✘ Building appears from wrong angle
+2. **Visual Changes**: ✘ No proper viewpoint rotation, ✘ Perspective completely wrong
+3. **Domain Knowledge**: ✘ Architectural proportions destroyed, ✘ Structural logic violated
+4. **Geometric Validation**: ✘ All geometric transformations incorrect, ✘ Major distortions
+
+→ **reasoning_visual_score**: 1 (Complete failure of spatial reasoning)
+
 ## Input
 **Image 1: Original Image** (the starting point)
 **Image 2: Generated Image** (the result after spatial reasoning)
@@ -384,6 +468,48 @@ Evaluate whether the **generated image** matches the target description (and tar
 - **2 Poor Match**: Generated image fails most target requirements (30-50% achievement) with major gaps or incorrect quantitative reasoning
 - **1 Failed Match**: Generated image completely fails to match target or shows fundamental quantitative logic errors (<30% achievement)
 
+### Example 1 (Score: 5): Perfect Apple Count
+**Task**: "Change the number of apples in this basket to exactly 10"
+**Dimension**: "common_sense"
+**Keywords**: "counting, object identification, numerical accuracy"
+**Target Description**: "exactly 10 clearly countable apples in the basket"
+
+**Evaluation**:
+1. **Target Match**: ✔ Exactly 10 apples visible, ✔ All apples clearly countable
+2. **Visual Changes**: ✔ Apple count changed from 6 to 10, ✔ New apples added appropriately
+3. **Domain Knowledge**: ✔ Apples visually distinct and countable, ✔ Basket accommodates 10 apples
+4. **Mathematical Validation**: ✔ Exact count of 10 achieved, ✔ All apples properly sized
+
+→ **reasoning_visual_score**: 5 (Perfect quantitative reasoning with accurate counting)
+
+### Example 2 (Score: 3): Adequate Apple Count
+**Task**: "Change the number of apples in this basket to exactly 10"
+**Dimension**: "common_sense"
+**Keywords**: "counting, object identification, numerical accuracy"
+**Target Description**: "exactly 10 clearly countable apples in the basket"
+
+**Evaluation**:
+1. **Target Match**: ✘ Only 8 apples visible, ✘ Some apples partially hidden
+2. **Visual Changes**: ✔ Apple count increased, ✘ Not enough apples added
+3. **Domain Knowledge**: ✔ Apples generally countable, ✘ Basket overcrowded
+4. **Mathematical Validation**: ✘ Count incorrect (8 instead of 10), ✘ Mathematical accuracy failed
+
+→ **reasoning_visual_score**: 3 (Adequate quantitative reasoning with counting errors)
+
+### Example 3 (Score: 1): Failed Apple Count
+**Task**: "Change the number of apples in this basket to exactly 10"
+**Dimension**: "common_sense"
+**Keywords**: "counting, object identification, numerical accuracy"
+**Target Description**: "exactly 10 clearly countable apples in the basket"
+
+**Evaluation**:
+1. **Target Match**: ✘ Wrong number of apples (15+), ✘ Apples uncountable due to overlap
+2. **Visual Changes**: ✘ Too many apples added, ✘ Poor spatial arrangement
+3. **Domain Knowledge**: ✘ Apples not visually distinct, ✘ Basket cannot accommodate properly
+4. **Mathematical Validation**: ✘ Completely wrong count, ✘ No mathematical accuracy
+
+→ **reasoning_visual_score**: 1 (Complete failure of quantitative reasoning)
+
 ## Input
 **Image 1: Original Image** (the starting point)
 **Image 2: Generated Image** (the result after quantitative reasoning)
@@ -513,6 +639,48 @@ Evaluate whether the **visual changes** in the generated image correctly demonst
 - **3 Adequate Match**: Generated image meets basic requirements (60-70%) but has notable gaps, wrong aspects, or incomplete causal changes
 - **2 Poor Match**: Generated image fails most target requirements (30-50% achievement) with major gaps or incorrect causal reasoning
 - **1 Failed Match**: Generated image completely fails to match target or shows fundamental causal logic errors (<30% achievement)
+
+### Example 1 (Score: 5): Perfect Potato Prevention
+**Task**: "Apply lemon juice to prevent these cut potatoes from browning"
+**Dimension**: "science"
+**Keywords**: "citric acid, enzymatic browning, oxidation prevention"
+**Target Description**: "cut potatoes remain white/pale after lemon juice application"
+
+**Evaluation**:
+1. **Target Match**: ✔ All potatoes remain white/pale, ✔ Lemon juice clearly applied
+2. **Visual Changes**: ✔ Lemon juice visible on potato surfaces, ✔ Potatoes maintain original color
+3. **Domain Knowledge**: ✔ Citric acid prevention shown correctly, ✔ Application method appropriate
+4. **Mechanism Validation**: ✔ Chemical prevention process visible, ✔ Complete coverage achieved
+
+→ **reasoning_visual_score**: 5 (Perfect causal reasoning with complete prevention)
+
+### Example 2 (Score: 3): Adequate Potato Prevention
+**Task**: "Apply lemon juice to prevent these cut potatoes from browning"
+**Dimension**: "science"
+**Keywords**: "citric acid, enzymatic browning, oxidation prevention"
+**Target Description**: "cut potatoes remain white/pale after lemon juice application"
+
+**Evaluation**:
+1. **Target Match**: ✘ Some potatoes show browning, ✘ Incomplete prevention
+2. **Visual Changes**: ✔ Lemon juice partially applied, ✘ Some areas missed
+3. **Domain Knowledge**: ✔ Basic citric acid concept shown, ✘ Application incomplete
+4. **Mechanism Validation**: ✘ Chemical prevention partially failed, ✘ Coverage gaps
+
+→ **reasoning_visual_score**: 3 (Adequate causal reasoning with partial prevention)
+
+### Example 3 (Score: 1): Failed Potato Prevention
+**Task**: "Apply lemon juice to prevent these cut potatoes from browning"
+**Dimension**: "science"
+**Keywords**: "citric acid, enzymatic browning, oxidation prevention"
+**Target Description**: "cut potatoes remain white/pale after lemon juice application"
+
+**Evaluation**:
+1. **Target Match**: ✘ All potatoes heavily browned, ✘ No prevention visible
+2. **Visual Changes**: ✘ No lemon juice visible, ✘ Potatoes completely oxidized
+3. **Domain Knowledge**: ✘ No citric acid application shown, ✘ Wrong approach
+4. **Mechanism Validation**: ✘ No chemical prevention, ✘ Complete failure
+
+→ **reasoning_visual_score**: 1 (Complete failure of causal reasoning)
 
 ## Input
 **Image 1: Original Image** (the starting point)
@@ -695,7 +863,16 @@ Evaluate whether the **reasoning process text** and the **visual reasoning resul
 - **4 High Quality Alignment**: Process and visual achieve 80-90%+ alignment with only minor inconsistencies that don't affect core reasoning; AND both generally follow the task prompt correctly
 - **3 Adequate Alignment**: Some alignment present (60-70%) but clear discrepancies between process and visual reasoning; notable inconsistencies exist; OR good internal alignment but significant misunderstanding of task prompt
 - **2 Poor Alignment**: Minimal alignment (30-50%) with major contradictions between written process and visual result; significant mismatches; OR both process and visual fundamentally misunderstand the prompt
-- **1 No Alignment**: Process text and visual result are contradictory or completely unrelated (<30% alignment); OR complete failure to understand task prompt; if visual reasoning is fundamentally wrong or prompt is misunderstood, alignment cannot be high regardless of internal consistency
+- **1 No Alignment**: Process text and visual result are contradictory or completely unrelated (<30% alignment); OR complete failure to understand task prompt
+
+## CRITICAL ALIGNMENT CONSTRAINT:
+**Alignment score cannot exceed visual reasoning score by more than 1 point.**
+- If visual reasoning = 1, alignment can be at most 2
+- If visual reasoning = 2, alignment can be at most 3  
+- If visual reasoning = 3, alignment can be at most 4
+- If visual reasoning = 4-5, alignment can be 4-5
+
+This ensures logical consistency: you cannot have high alignment with poor visual reasoning.
 
 ## Reasoning Steps:
 1. **Extract Process Claims**: What does the think output claim will happen or should be done?
@@ -704,6 +881,7 @@ Evaluate whether the **reasoning process text** and the **visual reasoning resul
 4. **Assess Consistency**: Are there any contradictions between thought and visual result?
 5. **Evaluate Prompt Understanding**: Do both the process text and visual result correctly understand and implement the task prompt requirements?
 6. **Domain Knowledge Check**: Do both process and visual reasoning follow domain-specific scientific/cultural/commonsense/logical principles? Ensure alignment respects established domain knowledge and reject violations of domain principles
+7. **Apply Alignment Constraint**: Ensure alignment score does not exceed visual reasoning quality by more than 1 point
 
 ## Input
 **Image 1: Original Image** (the starting point)
@@ -714,7 +892,7 @@ Evaluate whether the **reasoning process text** and the **visual reasoning resul
 ## Output Format
 {{
   "reasoning_alignment_score": X,
-  "reasoning": "1. Process Claims 2. Visual Evidence 3. Alignment Comparison 4. Consistency Assessment 5. Prompt Understanding 6. Domain Knowledge Check"
+  "reasoning": "1. Process Claims 2. Visual Evidence 3. Alignment Comparison 4. Consistency Assessment 5. Prompt Understanding 6. Domain Knowledge Check 7. Alignment Constraint"
 }}
 """
 
