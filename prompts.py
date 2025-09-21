@@ -740,6 +740,48 @@ Evaluate whether the **visual changes** in the generated image correctly demonst
 - **2 Limited Target Achievement**: Few target elements correctly present, major gaps in target description fulfillment
 - **1 Target Mismatch**: Generated image fails to match target description or shows fundamental logical errors
 
+### Example 1 (Score: 5): Perfect Fruit Platter
+**Task**: "Arrange these various fruits into an attractive fruit platter"
+**Dimension**: "common_sense"
+**Keywords**: "visual appeal, color balance, size hierarchy, accessibility"
+**Target Description**: "fruits arranged in an attractive platter with good color distribution and accessibility"
+
+**Evaluation**:
+1. **Target Match**: ✔ All fruits arranged on platter, ✔ Excellent color distribution, ✔ Perfect accessibility
+2. **Visual Changes**: ✔ Fruits properly arranged, ✔ Different varieties distributed evenly, ✔ Attractive presentation
+3. **Domain Knowledge**: ✔ Color balance achieved perfectly, ✔ Size hierarchy logical, ✔ Accessibility maintained
+4. **Plausibility Validation**: ✔ Arrangement realistic and stable, ✔ All fruits properly positioned
+
+→ **reasoning_visual_score**: 5 (Perfect synthetic reasoning with flawless arrangement)
+
+### Example 2 (Score: 3): Adequate Fruit Platter
+**Task**: "Arrange these various fruits into an attractive fruit platter"
+**Dimension**: "common_sense"
+**Keywords**: "visual appeal, color balance, size hierarchy, accessibility"
+**Target Description**: "fruits arranged in an attractive platter with good color distribution and accessibility"
+
+**Evaluation**:
+1. **Target Match**: ✘ Some fruits missing from platter, ✘ Color distribution uneven, ✔ Basic accessibility maintained
+2. **Visual Changes**: ✔ Some fruits arranged, ✘ Not all fruits included, ✘ Poor visual appeal
+3. **Domain Knowledge**: ✘ Color balance compromised, ✔ Basic size hierarchy, ✘ Accessibility issues
+4. **Plausibility Validation**: ✘ Some fruits may roll off, ✘ Unstable arrangement
+
+→ **reasoning_visual_score**: 3 (Adequate synthetic reasoning with notable gaps)
+
+### Example 3 (Score: 1): Failed Fruit Platter
+**Task**: "Arrange these various fruits into an attractive fruit platter"
+**Dimension**: "common_sense"
+**Keywords**: "visual appeal, color balance, size hierarchy, accessibility"
+**Target Description**: "fruits arranged in an attractive platter with good color distribution and accessibility"
+
+**Evaluation**:
+1. **Target Match**: ✘ No platter visible, ✘ Fruits scattered randomly, ✘ No organization
+2. **Visual Changes**: ✘ No proper arrangement, ✘ Fruits in wrong locations, ✘ Chaotic presentation
+3. **Domain Knowledge**: ✘ No color balance, ✘ No size hierarchy, ✘ No accessibility
+4. **Plausibility Validation**: ✘ Completely unrealistic, ✘ Impossible arrangement
+
+→ **reasoning_visual_score**: 1 (Complete failure of synthetic reasoning)
+
 ## Input
 **Image 1: Original Image** (the starting point)
 **Image 2: Generated Image** (the result after synthetic reasoning)
@@ -1127,6 +1169,76 @@ Rate the visual reasoning quality (1-5) based on four criteria. **Weight each cr
 - **3 Adequate Match**: Generated image meets basic requirements (60-70%) but has notable gaps, wrong aspects, or incomplete logical operations
 - **2 Poor Match**: Generated image fails most target requirements (30-50% achievement) with major gaps or incorrect logical reasoning
 - **1 Failed Match**: Generated image completely fails to match target or shows fundamental logical errors (<30% achievement)
+
+### Example 1 (Score: 5): Perfect Tic-Tac-Toe Move
+**Task**: "Make the optimal move in this tic-tac-toe game"
+**Dimension**: "logic"
+**Keywords**: "game strategy, winning conditions, blocking moves"
+**Target Description**: "X placed in center position to block O's winning opportunity"
+
+**Evaluation**:
+1. **Game Logic Review**: ✔ Optimal blocking move executed, ✔ Correct strategic positioning, ✔ Game rules followed perfectly
+2. **Mathematical Verification**: ✔ Board state calculated correctly, ✔ Winning conditions identified accurately
+3. **Pattern Analysis**: ✔ Game pattern recognized correctly, ✔ Strategic implications understood
+4. **Target Comparison**: ✔ Exact target position achieved, ✔ All requirements met perfectly
+
+→ **reasoning_visual_score**: 5 (Perfect logical reasoning with flawless game strategy)
+
+### Example 2 (Score: 3): Adequate Tic-Tac-Toe Move
+**Task**: "Make the optimal move in this tic-tac-toe game"
+**Dimension**: "logic"
+**Keywords**: "game strategy, winning conditions, blocking moves"
+**Target Description**: "X placed in center position to block O's winning opportunity"
+
+**Evaluation**:
+1. **Game Logic Review**: ✘ Move made but not optimal, ✔ Basic game rules followed, ✘ Strategic thinking limited
+2. **Mathematical Verification**: ✔ Board state mostly correct, ✘ Some calculation errors
+3. **Pattern Analysis**: ✘ Pattern recognition incomplete, ✔ Basic game understanding present
+4. **Target Comparison**: ✘ Wrong position chosen, ✘ Target requirements not fully met
+
+→ **reasoning_visual_score**: 3 (Adequate logical reasoning with strategic errors)
+
+### Example 3 (Score: 1): Failed Tic-Tac-Toe Move
+**Task**: "Make the optimal move in this tic-tac-toe game"
+**Dimension**: "logic"
+**Keywords**: "game strategy, winning conditions, blocking moves"
+**Target Description**: "X placed in center position to block O's winning opportunity"
+
+**Evaluation**:
+1. **Game Logic Review**: ✘ No valid move made, ✘ Game rules violated, ✘ No strategic thinking
+2. **Mathematical Verification**: ✘ Board state completely wrong, ✘ No calculations correct
+3. **Pattern Analysis**: ✘ No pattern recognition, ✘ No game understanding
+4. **Target Comparison**: ✘ Completely wrong approach, ✘ No target requirements met
+
+→ **reasoning_visual_score**: 1 (Complete failure of logical reasoning)
+
+### Example 4 (Score: 5): Perfect Geometric Construction
+**Task**: "Construct a perfect equilateral triangle with side length 5cm"
+**Dimension**: "logic"
+**Keywords**: "geometric accuracy, measurement precision, mathematical construction"
+**Target Description**: "equilateral triangle with all sides exactly 5cm and all angles 60 degrees"
+
+**Evaluation**:
+1. **Game Logic Review**: N/A (Not applicable for geometric tasks)
+2. **Mathematical Verification**: ✔ All sides exactly 5cm, ✔ All angles exactly 60 degrees, ✔ Perfect geometric accuracy
+3. **Pattern Analysis**: ✔ Equilateral triangle pattern correctly implemented, ✔ Mathematical relationships preserved
+4. **Target Comparison**: ✔ Exact target specifications achieved, ✔ All requirements met perfectly
+
+→ **reasoning_visual_score**: 5 (Perfect logical reasoning with flawless geometric accuracy)
+
+### Example 5 (Score: 2): Poor Geometric Construction
+**Task**: "Construct a perfect equilateral triangle with side length 5cm"
+**Dimension**: "logic"
+**Keywords**: "geometric accuracy, measurement precision, mathematical construction"
+**Target Description**: "equilateral triangle with all sides exactly 5cm and all angles 60 degrees"
+
+**Evaluation**:
+1. **Game Logic Review**: N/A (Not applicable for geometric tasks)
+2. **Mathematical Verification**: ✘ Sides incorrect lengths, ✘ Angles not 60 degrees, ✘ Major geometric errors
+3. **Pattern Analysis**: ✘ Triangle shape distorted, ✘ Mathematical relationships violated
+4. **Target Comparison**: ✘ Most target requirements failed, ✘ Poor geometric accuracy
+
+→ **reasoning_visual_score**: 2 (Poor logical reasoning with major geometric errors)
 
 ## Quality Checklist:
 For each criterion, mark ✓ (satisfactory) or ✗ (problematic):
