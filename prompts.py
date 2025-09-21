@@ -1165,10 +1165,16 @@ Rate the visual reasoning quality (1-5) based on four criteria. **Weight each cr
 
 ## Evaluation Scale (1 to 5):
 - **5 Perfect Target Match**: Generated image **precisely matches** target description (and target image if available) with **flawless logical implementation**; all required logical operations are present and accurate with **zero gaps or errors**
-- **4 High Quality Match**: Generated image achieves 80-90%+ of target requirements with only minor details missing or slightly incorrect; core logical operations are correct
-- **3 Adequate Match**: Generated image meets basic requirements (60-70%) but has notable gaps, wrong aspects, or incomplete logical operations
-- **2 Poor Match**: Generated image fails most target requirements (30-50% achievement) with major gaps or incorrect logical reasoning
-- **1 Failed Match**: Generated image completely fails to match target or shows fundamental logical errors (<30% achievement)
+- **4 High Quality Match**: Generated image achieves 90-95%+ of target requirements with only very minor details missing; core logical operations are correct with minimal imperfections
+- **3 Adequate Match**: Generated image meets basic requirements (80-90%) but has some logical gaps or minor errors that don't affect core functionality
+- **2 Poor Match**: Generated image has significant logical errors or fails to address most requirements (50-80% achievement) with major gaps in logical reasoning
+- **1 Failed Match**: Generated image shows fundamental logical errors, violates basic rules, or completely fails to match target (<50% achievement)
+
+## CRITICAL LOGIC CONSTRAINT:
+**Logic reasoning has zero tolerance for fundamental errors.**
+- Any violation of basic logical rules, game rules, or mathematical principles = automatic 1-2 points
+- Minor logical inconsistencies = maximum 3 points
+- Only near-perfect logical implementation can achieve 4-5 points
 
 ### Example 1 (Score: 5): Perfect Tic-Tac-Toe Move
 **Task**: "Make the optimal move in this tic-tac-toe game"
@@ -1191,12 +1197,26 @@ Rate the visual reasoning quality (1-5) based on four criteria. **Weight each cr
 **Target Description**: "X placed in center position to block O's winning opportunity"
 
 **Evaluation**:
-1. **Game Logic Review**: ✘ Move made but not optimal, ✔ Basic game rules followed, ✘ Strategic thinking limited
-2. **Mathematical Verification**: ✔ Board state mostly correct, ✘ Some calculation errors
-3. **Pattern Analysis**: ✘ Pattern recognition incomplete, ✔ Basic game understanding present
-4. **Target Comparison**: ✘ Wrong position chosen, ✘ Target requirements not fully met
+1. **Game Logic Review**: ✔ Valid move made, ✔ Game rules followed correctly, ✘ Not the optimal strategic choice
+2. **Mathematical Verification**: ✔ Board state calculated correctly, ✔ Winning conditions identified, ✘ Strategic implications missed
+3. **Pattern Analysis**: ✔ Basic pattern recognition, ✔ Game understanding present, ✘ Strategic depth limited
+4. **Target Comparison**: ✘ Good move but not optimal, ✘ Target requirements partially met
 
-→ **reasoning_visual_score**: 3 (Adequate logical reasoning with strategic errors)
+→ **reasoning_visual_score**: 3 (Adequate logical reasoning with minor strategic gaps - logic requires near-perfect implementation)
+
+### Example 3 (Score: 2): Poor Tic-Tac-Toe Move
+**Task**: "Make the optimal move in this tic-tac-toe game"
+**Dimension**: "logic"
+**Keywords**: "game strategy, winning conditions, blocking moves"
+**Target Description**: "X placed in center position to block O's winning opportunity"
+
+**Evaluation**:
+1. **Game Logic Review**: ✘ Move made but not optimal, ✔ Basic game rules followed, ✘ Strategic thinking limited
+2. **Mathematical Verification**: ✘ Board state calculation errors, ✘ Winning conditions misidentified
+3. **Pattern Analysis**: ✘ Pattern recognition incomplete, ✘ Game understanding flawed
+4. **Target Comparison**: ✘ Wrong position chosen, ✘ Target requirements not met
+
+→ **reasoning_visual_score**: 2 (Poor logical reasoning with strategic errors - logic has zero tolerance for suboptimal moves)
 
 ### Example 3 (Score: 1): Failed Tic-Tac-Toe Move
 **Task**: "Make the optimal move in this tic-tac-toe game"
@@ -1234,11 +1254,25 @@ Rate the visual reasoning quality (1-5) based on four criteria. **Weight each cr
 
 **Evaluation**:
 1. **Game Logic Review**: N/A (Not applicable for geometric tasks)
-2. **Mathematical Verification**: ✘ Sides incorrect lengths, ✘ Angles not 60 degrees, ✘ Major geometric errors
+2. **Mathematical Verification**: ✘ Sides incorrect lengths (4cm, 6cm, 5cm), ✘ Angles not 60 degrees, ✘ Major geometric errors
 3. **Pattern Analysis**: ✘ Triangle shape distorted, ✘ Mathematical relationships violated
 4. **Target Comparison**: ✘ Most target requirements failed, ✘ Poor geometric accuracy
 
-→ **reasoning_visual_score**: 2 (Poor logical reasoning with major geometric errors)
+→ **reasoning_visual_score**: 2 (Poor logical reasoning with major geometric errors - logic has zero tolerance for measurement errors)
+
+### Example 6 (Score: 1): Failed Geometric Construction
+**Task**: "Construct a perfect equilateral triangle with side length 5cm"
+**Dimension**: "logic"
+**Keywords**: "geometric accuracy, measurement precision, mathematical construction"
+**Target Description**: "equilateral triangle with all sides exactly 5cm and all angles 60 degrees"
+
+**Evaluation**:
+1. **Game Logic Review**: N/A (Not applicable for geometric tasks)
+2. **Mathematical Verification**: ✘ Sides completely wrong lengths, ✘ Angles not 60 degrees, ✘ Fundamental geometric principles violated
+3. **Pattern Analysis**: ✘ Triangle shape severely distorted, ✘ Mathematical relationships completely violated
+4. **Target Comparison**: ✘ All target requirements failed, ✘ No geometric accuracy
+
+→ **reasoning_visual_score**: 1 (Complete failure of logical reasoning - logic has zero tolerance for fundamental geometric errors)
 
 ## Quality Checklist:
 For each criterion, mark ✓ (satisfactory) or ✗ (problematic):
