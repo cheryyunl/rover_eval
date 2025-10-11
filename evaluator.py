@@ -1,4 +1,4 @@
-# Copyright (c) 2025 VortexBench Team
+# Copyright (c) 2025 ROVER Team
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
@@ -70,14 +70,14 @@ REASONING_PROMPTS = {
     },
 }
 
-def evaluate_images(image_id, metrics=None, vortex_data=None, api_key=None):
+def evaluate_images(image_id, metrics=None, rover_data=None, api_key=None):
     """
     Unified evaluation function for all reasoning types
     
     Args:
         image_id: ID of the image to evaluate
         metrics: List of metrics to evaluate (default: all metrics)
-        vortex_data: Dataset containing task information
+        rover_data: Dataset containing task information
         api_key: API key (deprecated, kept for compatibility)
     
     Returns:
@@ -87,7 +87,7 @@ def evaluate_images(image_id, metrics=None, vortex_data=None, api_key=None):
     results = {}
     
     # Find the specific task
-    task = get_task_data(vortex_data, image_id)
+    task = get_task_data(rover_data, image_id)
     if not task:
         logging.warning(f"Task ID {image_id} not found")
         return results

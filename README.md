@@ -1,10 +1,15 @@
-# VortexBench Evaluation System
+# ROVER Evaluation System
 
 A comprehensive evaluation framework for visual reasoning models using 5 core metrics across temporal, spatial, quantitative, causal, and synthetic reasoning tasks.
 
 ## Quick Start
 
 ### 1. Setup
+
+Install neccessary repo:
+```bash
+pip3 install -r requirements.txt
+```
 
 Configure your OpenAI credentials (choose one):
 
@@ -33,13 +38,13 @@ Set the generation directory path (choose one):
 
 **Option A: Environment Variable (Recommended)**
 ```bash
-export VORTEX_GEN_DIR="/path/to/your/generated/results"
+export ROVER_GEN_DIR="/path/to/your/generated/results"
 export MAX_RETRIES="3"  # Optional: number of retries for failed evaluations
 ```
 
 **Option B: Edit config.py**
 ```python
-VORTEX_GEN_DIR = "/path/to/your/generated/results"
+ROVER_GEN_DIR = "/path/to/your/generated/results"
 MAX_RETRIES = 3  # Number of retries for failed evaluations
 ```
 
@@ -66,26 +71,26 @@ your_gen_dir/
 
 ```bash
 # Evaluate all available results
-python evaluate_vortex.py --output_dir results
+python evaluate_rover.py --output_dir results
 
 # Filter by reasoning type
-python evaluate_vortex.py --output_dir results --reasoning_type temporal
+python evaluate_rover.py --output_dir results --reasoning_type temporal
 
 # Filter by dimension
-python evaluate_vortex.py --output_dir results --dimension science
+python evaluate_rover.py --output_dir results --dimension science
 
 # Custom worker count
-python evaluate_vortex.py --output_dir results --workers 5
+python evaluate_rover.py --output_dir results --workers 5
 ```
 
 ### 5. View Results
 
 ```bash
 # Generate summary report
-python summarize.py --results_file results/vortex_metrics.jsonl --output_dir results
+python summarize.py --results_file results/rover_metrics.jsonl --output_dir results
 
 # View detailed results
-cat results/vortex_summary.json
+cat results/rover_summary.json
 ```
 
 ## Evaluation Metrics
@@ -134,18 +139,18 @@ your_gen_dir/
 
 ## Output Format
 
-**Raw Results:** `results/vortex_metrics.jsonl` - One JSON object per evaluated task
+**Raw Results:** `results/rover_metrics.jsonl` - One JSON object per evaluated task
 
-**Summary Report:** `results/vortex_summary.json` - Aggregated statistics by dimension, reasoning type, and overall
+**Summary Report:** `results/rover_summary.json` - Aggregated statistics by dimension, reasoning type, and overall
 
 **Console Output:** Formatted table with scores (0-100 scale) for easy reading
 
 ## Command Line Options
 
 ```bash
-python evaluate_vortex.py [OPTIONS]
+python evaluate_rover.py [OPTIONS]
 
---output_dir DIR              Output directory (default: vortex_results)
+--output_dir DIR              Output directory (default: rover_results)
 --workers N                   Number of parallel workers (default: 10)
 --dimension {science,humanity,common_sense,logic}
                              Filter by dimension
@@ -167,7 +172,7 @@ The evaluation system uses a unified architecture:
 - **`base_metric.py`**: Common functionality (image encoding, GPT evaluation, scoring, retry logic)
 - **`config.py`**: Configuration management (API keys, paths, retry settings)
 - **`prompts.py`**: Evaluation prompts for all reasoning types
-- **`evaluate_vortex.py`**: Main evaluation script with parallel processing
+- **`evaluate_rover.py`**: Main evaluation script with parallel processing
 
 **Key Features:**
 - **Unified retry mechanism**: All metrics use consistent retry logic for failed evaluations
@@ -184,7 +189,7 @@ The evaluation system uses a unified architecture:
 
 **Common Issues:**
 
-1. **"Generated image not found"** → Check `VORTEX_GEN_DIR` path and file naming
+1. **"Generated image not found"** → Check `ROVER_GEN_DIR` path and file naming
 2. **API errors** → Verify OpenAI credentials in `config.py`
 3. **Low RP/RA scores** → Normal if reasoning text files (.txt) are missing
 4. **Dataset loading fails** → Check internet connection for Hugging Face access

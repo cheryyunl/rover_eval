@@ -1,7 +1,7 @@
-# Copyright (c) 2025 VortexBench Team
+# Copyright (c) 2025 ROVER Team
 # SPDX-License-Identifier: Apache-2.0
 
-# VortexBench Evaluation Prompts
+# ROVER Evaluation Prompts
 # 5 core metrics: reasoning_process, reasoning_visual, reasoning_alignment, visual_consistency, image_quality
 
 prompt_reasoning_process_temporal = """

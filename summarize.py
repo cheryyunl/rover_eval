@@ -1,4 +1,4 @@
-# Copyright (c) 2025 VortexBench Team
+# Copyright (c) 2025 ROVER Team
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -6,10 +6,10 @@ import json
 import argparse
 from collections import defaultdict
 
-# VortexBench structure definitions
-VORTEX_DIMENSIONS = ["science", "culture", "common_sense", "logic"]
-VORTEX_REASONING_TYPES = ["temporal", "spatial", "quantitative", "causal", "synthetic", "logical", "mathematical", "abstract"] 
-VORTEX_METRICS = ["reasoning_process", "reasoning_visual", "reasoning_alignment", "visual_consistency", "image_quality"]
+# ROVER structure definitions
+ROVER_DIMENSIONS = ["science", "culture", "common_sense", "logic"]
+ROVER_REASONING_TYPES = ["temporal", "spatial", "quantitative", "causal", "synthetic", "logical", "mathematical", "abstract"] 
+ROVER_METRICS = ["reasoning_process", "reasoning_visual", "reasoning_alignment", "visual_consistency", "image_quality"]
 
 # Score names for display
 METRIC_DISPLAY_NAMES = {
@@ -61,8 +61,8 @@ def normalize_score(score):
         return None
     return (score - 1) * 25
 
-def load_vortex_results(jsonl_path):
-    """Load and parse VortexBench evaluation results"""
+def load_rover_results(jsonl_path):
+    """Load and parse ROVER evaluation results"""
     results = {}
     
     if not os.path.exists(jsonl_path):
@@ -89,7 +89,7 @@ def load_vortex_results(jsonl_path):
                     "reasoning_type": reasoning_type
                 }
                 
-                for metric in VORTEX_METRICS:
+                for metric in ROVER_METRICS:
                     # Try both formats: "metric_score" and "metric": {"score": value}
                     score_key = f"{metric}_score"
                     if score_key in result and result[score_key] is not None:
@@ -122,7 +122,7 @@ def load_vortex_results(jsonl_path):
     return results
 
 def calculate_summary_statistics(results):
-    """Calculate summary statistics for VortexBench results"""
+    """Calculate summary statistics for ROVER results"""
     
     # Group results by dimension and reasoning_type
     dimension_scores = defaultdict(lambda: defaultdict(list))  # dimension -> metric -> [scores]
@@ -133,7 +133,7 @@ def calculate_summary_statistics(results):
         dimension = result["dimension"]
         reasoning_type = result["reasoning_type"]
         
-        for metric in VORTEX_METRICS:
+        for metric in ROVER_METRICS:
             score = result.get(metric)
             if score is not None:
                 dimension_scores[dimension][metric].append(score)
@@ -145,7 +145,7 @@ def calculate_summary_statistics(results):
         averages = {}
         all_scores = []
         
-        for metric in VORTEX_METRICS:
+        for metric in ROVER_METRICS:
             scores = scores_dict.get(metric, [])
             if scores:
                 avg = sum(scores) / len(scores)
@@ -159,13 +159,13 @@ def calculate_summary_statistics(results):
     
     # Calculate dimension averages
     dimension_summary = {}
-    for dimension in VORTEX_DIMENSIONS:
+    for dimension in ROVER_DIMENSIONS:
         if dimension in dimension_scores:
             dimension_summary[dimension] = calc_average(dimension_scores[dimension])
     
     # Calculate reasoning_type averages
     reasoning_type_summary = {}
-    for reasoning_type in VORTEX_REASONING_TYPES:
+    for reasoning_type in ROVER_REASONING_TYPES:
         if reasoning_type in reasoning_type_scores:
             reasoning_type_summary[reasoning_type] = calc_average(reasoning_type_scores[reasoning_type])
     
@@ -182,7 +182,7 @@ def calculate_summary_statistics(results):
 def print_summary_report(summary):
     """Print formatted summary report"""
     print("="*60)
-    print("VortexBench Evaluation Summary")
+    print("ROVER Evaluation Summary")
     print("="*60)
     print(f"Total tasks evaluated: {summary['task_count']}")
     print()
@@ -190,7 +190,7 @@ def print_summary_report(summary):
     # Print dimensions
     print("Results by Dimension:")
     print("-" * 40)
-    for dimension in VORTEX_DIMENSIONS:
+    for dimension in ROVER_DIMENSIONS:
         if dimension in summary["dimensions"]:
             scores = summary["dimensions"][dimension]
             print(f"{dimension.capitalize()}:")
@@ -202,7 +202,7 @@ def print_summary_report(summary):
     # Print reasoning types
     print("Results by Reasoning Type:")
     print("-" * 40)
-    for reasoning_type in VORTEX_REASONING_TYPES:
+    for reasoning_type in ROVER_REASONING_TYPES:
         if reasoning_type in summary["reasoning_types"]:
             scores = summary["reasoning_types"][reasoning_type]
             print(f"{reasoning_type.capitalize()}:")
@@ -220,17 +220,17 @@ def print_summary_report(summary):
             print(f"{metric_key}: {overall[metric_key]:.2f}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Summarize VortexBench evaluation results")
+    parser = argparse.ArgumentParser(description="Summarize ROVER evaluation results")
     parser.add_argument('--results_file', type=str, required=True, 
-                        help='Path to the vortex_metrics.jsonl file')
+                        help='Path to the rover_metrics.jsonl file')
     parser.add_argument('--output_dir', type=str, default='.',
                         help='Directory to save summary results')
     
     args = parser.parse_args()
     
     # Load results
-    print("Loading VortexBench results...")
-    results = load_vortex_results(args.results_file)
+    print("Loading ROVER results...")
+    results = load_rover_results(args.results_file)
     
     if not results:
         print("No valid results found!")
@@ -247,7 +247,7 @@ def main():
     
     # Save detailed results to JSON
     os.makedirs(args.output_dir, exist_ok=True)
-    output_path = os.path.join(args.output_dir, 'vortex_summary.json')
+    output_path = os.path.join(args.output_dir, 'rover_summary.json')
     summary_data = {
         "summary": summary,
         "detailed_results": results

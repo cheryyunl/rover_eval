@@ -1,4 +1,4 @@
-# Copyright (c) 2025 VortexBench Team
+# Copyright (c) 2025 ROVER Team
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -13,7 +13,7 @@ from openai import AzureOpenAI
 import threading
 
 # Import configuration
-from config import OPENAI_API_KEY, OPENAI_MODEL, AZURE_API_KEY, AZURE_ENDPOINT, AZURE_DEPLOYMENT_NAME, AZURE_API_VERSION, VORTEX_GEN_DIR
+from config import OPENAI_API_KEY, OPENAI_MODEL, AZURE_API_KEY, AZURE_ENDPOINT, AZURE_DEPLOYMENT_NAME, AZURE_API_VERSION, ROVER_GEN_DIR
 
 # Thread-safe file writing lock
 lock = threading.Lock()
@@ -299,17 +299,17 @@ def extract_score_and_reason(response, score_key, reason_fields, prefix_patterns
     
     return score, reason
 
-def get_task_data(vortex_data, image_id):
+def get_task_data(rover_data, image_id):
     """Get task data for a specific image ID"""
-    for task in vortex_data["tasks"]:
+    for task in rover_data["tasks"]:
         if task["id"] == image_id:
             return task
     return None
 
 def get_image_paths(image_id):
     """Get file paths for generated image and think output"""
-    generated_path = os.path.join(VORTEX_GEN_DIR, f"gen_{image_id}.png")
-    think_path = os.path.join(VORTEX_GEN_DIR, f"gen_{image_id}.txt")
+    generated_path = os.path.join(ROVER_GEN_DIR, f"gen_{image_id}.png")
+    think_path = os.path.join(ROVER_GEN_DIR, f"gen_{image_id}.txt")
     return generated_path, think_path
 
 def load_think_output(think_path):

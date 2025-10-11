@@ -1,4 +1,4 @@
-# Copyright (c) 2025 VortexBench Team
+# Copyright (c) 2025 ROVER Team
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -12,7 +12,7 @@ from datasets import load_dataset
 
 # Import unified evaluator and config
 from evaluator import evaluate_images
-from config import VORTEX_GEN_DIR
+from config import ROVER_GEN_DIR
 
 # Hugging Face dataset
 DATASET_NAME = "cheryyunl/ROVER-Gen"
@@ -27,7 +27,7 @@ def save_result_jsonl(result, key, output_jsonl_path):
         f.write(json.dumps(data, ensure_ascii=False) + '\n')
 
 
-def process_task_evaluation(task, vortex_data, metrics, api_key, output_jsonl_path):
+def process_task_evaluation(task, rover_data, metrics, api_key, output_jsonl_path):
     """Process single task evaluation"""
     try:
         task_id = task["id"]
@@ -36,7 +36,7 @@ def process_task_evaluation(task, vortex_data, metrics, api_key, output_jsonl_pa
         result = evaluate_images(
             image_id=task_id,
             metrics=metrics,
-            vortex_data=vortex_data,
+            rover_data=rover_data,
             api_key=api_key
         )
         
@@ -59,8 +59,8 @@ def load_huggingface_data():
         logging.error(f"Error loading Hugging Face dataset {DATASET_NAME}: {e}")
         return None
 
-def convert_hf_to_vortex_format(dataset):
-    """Convert Hugging Face dataset to VortexBench format"""
+def convert_hf_to_rover_format(dataset):
+    """Convert Hugging Face dataset to ROVER format"""
     tasks = []
     
     # Get the train split
@@ -93,8 +93,8 @@ def convert_hf_to_vortex_format(dataset):
     
     return {'tasks': tasks}
 
-def run_vortex_evaluation(
-    output_dir="vortex_results",
+def run_rover_evaluation(
+    output_dir="rover_results",
     num_workers=10,
     metrics=None,
     api_key=None,
@@ -104,7 +104,7 @@ def run_vortex_evaluation(
     max_tasks=None
 ):
     """
-    Run VortexBench evaluation using Hugging Face dataset
+    Run ROVER evaluation using Hugging Face dataset
     
     Args:
         output_dir: Directory to save results
@@ -120,18 +120,18 @@ def run_vortex_evaluation(
     
     # Setup output directory
     os.makedirs(output_dir, exist_ok=True)
-    output_jsonl_path = os.path.join(output_dir, "vortex_metrics.jsonl")
+    output_jsonl_path = os.path.join(output_dir, "rover_metrics.jsonl")
     
     # Load Hugging Face dataset
     dataset = load_huggingface_data()
     if dataset is None:
         return
     
-    # Convert to VortexBench format
-    vortex_data = convert_hf_to_vortex_format(dataset)
+    # Convert to ROVER format
+    rover_data = convert_hf_to_rover_format(dataset)
     
     # Filter tasks
-    tasks = vortex_data["tasks"]
+    tasks = rover_data["tasks"]
     if filter_dimension:
         tasks = [t for t in tasks if t.get("dimension") == filter_dimension]
     if filter_reasoning_type:
@@ -157,7 +157,7 @@ def run_vortex_evaluation(
     
     for task in tasks:
         task_id = task["id"]
-        gen_image_path = os.path.join(VORTEX_GEN_DIR, f"gen_{task_id}.png")
+        gen_image_path = os.path.join(ROVER_GEN_DIR, f"gen_{task_id}.png")
         
         if os.path.exists(gen_image_path):
             if task_id not in already_evaluated or force_reevaluate:
@@ -187,7 +187,7 @@ def run_vortex_evaluation(
         for task in valid_tasks:
             future = executor.submit(
                 process_task_evaluation,
-                task, vortex_data, metrics, api_key, output_jsonl_path
+                task, rover_data, metrics, api_key, output_jsonl_path
             )
             futures.append(future)
         
@@ -195,7 +195,7 @@ def run_vortex_evaluation(
         successful = 0
         failed = 0
         
-        for future in tqdm(as_completed(futures), total=len(futures), desc="Evaluating VortexBench"):
+        for future in tqdm(as_completed(futures), total=len(futures), desc="Evaluating ROVER"):
             try:
                 success = future.result()
                 if success:
@@ -211,8 +211,8 @@ def run_vortex_evaluation(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="VortexBench Evaluation")
-    parser.add_argument("--output_dir", type=str, default="vortex_results", help="Output directory")
+    parser = argparse.ArgumentParser(description="ROVER Evaluation")
+    parser.add_argument("--output_dir", type=str, default="rover_results", help="Output directory")
     parser.add_argument("--workers", type=int, default=10, help="Number of worker threads")
     parser.add_argument("--metrics", nargs="+", choices=METRICS, default=METRICS, help="Metrics to evaluate")
     parser.add_argument("--api_key", type=str, help="[DEPRECATED] API key parameter - Azure credentials are configured in metric files")
@@ -231,7 +231,7 @@ if __name__ == "__main__":
     if api_key:
         print("Warning: --api_key parameter is deprecated. Azure credentials are configured in metric files.")
     
-    run_vortex_evaluation(
+    run_rover_evaluation(
         output_dir=args.output_dir,
         num_workers=args.workers,
         metrics=args.metrics,
